@@ -579,7 +579,12 @@ func updateRedeemAccountLockedBalance(senderAccount *statedb.Account, tx *plugin
 		if strings.EqualFold(tx.Asset.Symbol, "HBTC") {
 			// New HBTC Balance update
 			firstExternalAddress := senderAccount.FirstExternalAddress["ETH"]
-			newHBTCExternalBal := senderAccount.EBalances[tx.Asset.Symbol][tx.Asset.ExternalSenderAddress].Balance - tx.Asset.RedeemedAmount
+			var newHBTCExternalBal uint64
+			if senderAccount.EBalances[tx.Asset.Symbol][tx.Asset.ExternalSenderAddress].Balance > tx.Asset.RedeemedAmount {
+				newHBTCExternalBal = senderAccount.EBalances[tx.Asset.Symbol][tx.Asset.ExternalSenderAddress].Balance - tx.Asset.RedeemedAmount
+			} else {
+				newHBTCExternalBal = 0
+			}
 			newHBTCEBal := statedb.EBalance{
 				Address:         firstExternalAddress,
 				Balance:         newHBTCExternalBal,
@@ -593,7 +598,11 @@ func updateRedeemAccountLockedBalance(senderAccount *statedb.Account, tx *plugin
 
 	} else if tx.SenderAddress == senderAccount.Address &&
 		tx.Asset.RedeemedAmount <= senderAccount.LockedBalance[asset][tx.Asset.ExternalSenderAddress] {
-		senderAccount.LockedBalance[asset][tx.Asset.ExternalSenderAddress] -= tx.Asset.RedeemedAmount
+		if senderAccount.LockedBalance[asset][tx.Asset.ExternalSenderAddress] > tx.Asset.RedeemedAmount {
+			senderAccount.LockedBalance[asset][tx.Asset.ExternalSenderAddress] -= tx.Asset.RedeemedAmount
+		} else {
+			senderAccount.LockedBalance[asset][tx.Asset.ExternalSenderAddress] = 0
+		}
 		newExternalBal := senderAccount.EBalances[asset][tx.Asset.ExternalSenderAddress].Balance + tx.Asset.RedeemedAmount
 		newEBal := statedb.EBalance{
 			Address:         tx.Asset.ExternalSenderAddress,
@@ -978,7 +987,11 @@ func (s *Supervisor) updateStateForTxs(txs *txbyte.Txs, stateTrie statedb.Trie) 
 				log.Printf("Sender does not have enough assets in account (%d) to send transaction amount (%d)", balance.Balance, tx.Asset.Value)
 				continue
 			}
-			balance.Balance -= tx.Asset.Value
+			if balance.Balance > tx.Asset.Value {
+				balance.Balance -= tx.Asset.Value
+			} else {
+				balance.Balance = 0
+			}
 
 			senderAccount.Nonce = tx.Asset.Nonce
 			senderAccount.EBalances[symbol][tx.Asset.ExternalSenderAddress] = balance
