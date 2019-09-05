@@ -42,7 +42,7 @@ func (btc *BTCTestNetSyncer) GetExtBalance() error {
 	if !ok {
 		return errors.New("BTC account does not exists")
 	}
-	btcCypher := blockcypher.API{Token: "490bb2949a2542fcb6f74f4efdba70dd", Coin: "btc", Chain: "test3"}
+	btcCypher := blockcypher.API{Token: "d3b5ec2c94cc4ba183f02aca9d8729da", Coin: "btc", Chain: "test3"}
 	for _, ba := range btcAccount {
 		if strings.HasPrefix(ba.Address, "1") || strings.HasPrefix(ba.Address, "3") {
 			btc.addressError[ba.Address] = true
