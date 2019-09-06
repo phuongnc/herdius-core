@@ -146,7 +146,7 @@ func (btc *BTCTestNetSyncer) Update() {
 			}
 			last = last.UpdateLastExtBalanceByKey(storageKey, btc.ExtBalance[btcAccount.Address])
 			last = last.UpdateCurrentExtBalanceByKey(storageKey, btc.ExtBalance[btcAccount.Address])
-			//	last = last.UpdateIsFirstEntryByKey(storageKey, true)
+			last = last.UpdateIsFirstEntryByKey(storageKey, true)
 			last = last.UpdateIsNewAmountUpdateByKey(storageKey, false)
 			btcAccount.UpdateBalance(btc.ExtBalance[btcAccount.Address].Uint64())
 			btcAccount.UpdateBlockHeight(btc.BlockHeight[btcAccount.Address].Uint64())
