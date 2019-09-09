@@ -23,8 +23,8 @@ type apiEndponts struct {
 	tezosRPC        string
 }
 
-// SyncAllAccounts syncs all assets of available accounts.
-func SyncAllAccounts(exBal external.BalanceStorage, env string) {
+// DoSyncAllAccounts syncs all assets of available accounts.
+func DoSyncAllAccounts(exBal external.BalanceStorage, env string, stopCh chan struct{}) {
 	var rpc apiEndponts
 	viper.SetConfigName("config")   // Config file name without extension
 	viper.AddConfigPath("./config") // Path to config file
@@ -45,7 +45,12 @@ func SyncAllAccounts(exBal external.BalanceStorage, env string) {
 	}
 
 	for {
-		sync(exBal, rpc)
+		select {
+		case <-stopCh:
+			return
+		default:
+			sync(exBal, rpc)
+		}
 	}
 }
 
