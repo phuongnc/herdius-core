@@ -4,7 +4,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"os"
+	"os/signal"
 	"strconv"
+	"sync"
+	"syscall"
 
 	nlog "log"
 	"strings"
@@ -209,7 +213,15 @@ func main() {
 
 	lastBlock := blockchainSvc.GetLastBlock()
 
-	go syncer.SyncAllAccounts(accountStorage, env)
+	var wg sync.WaitGroup
+	sigs := make(chan os.Signal)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	stop := make(chan struct{})
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		syncer.DoSyncAllAccounts(accountStorage, env, stop)
+	}()
 
 	var lbh cmn.HexBytes
 	lastBlockHash := lastBlock.GetHeader().GetBlock_ID().GetBlockHash()
@@ -248,38 +260,53 @@ func main() {
 		}
 	}()
 
-	for {
-		supsvc.SetStateRoot(stateRoot)
-		lastBlock := blockchainSvc.GetLastBlock()
-		stateRoot = lastBlock.GetHeader().GetStateRoot()
-		supsvc.SetStateRoot(stateRoot)
-		baseBlock, err := supsvc.ProcessTxs(lastBlock, net)
-		if err != nil {
-			log.Error().Err(err).Msg("failed to process txs")
-			continue
+	go func() {
+		for {
+			select {
+			case <-stop:
+				break
+			default:
+				supsvc.SetStateRoot(stateRoot)
+				lastBlock := blockchainSvc.GetLastBlock()
+				stateRoot = lastBlock.GetHeader().GetStateRoot()
+				supsvc.SetStateRoot(stateRoot)
+				baseBlock, err := supsvc.ProcessTxs(lastBlock, net)
+				if err != nil {
+					log.Error().Err(err).Msg("failed to process txs")
+					continue
+				}
+
+				if err := blockchainSvc.AddBaseBlock(baseBlock); err != nil {
+					log.Error().Err(err).Msg("Failed to Add Base Block")
+					continue
+				}
+
+				var (
+					pbbh cmn.HexBytes = baseBlock.Header.LastBlockID.BlockHash
+					bbh  cmn.HexBytes = baseBlock.GetHeader().GetBlock_ID().GetBlockHash()
+				)
+
+				log.Info().Msg("New Block Added")
+				log.Info().Msgf("Block Id: %v", bbh.String())
+				log.Info().Msgf("Last Block Id: %v", pbbh.String())
+				log.Info().Msgf("Block Height: %v", baseBlock.GetHeader().GetHeight())
+
+				s := lastBlock.GetHeader().GetTime().GetSeconds()
+				ts := time.Unix(s, 0)
+				log.Info().Msgf("Timestamp : %v", ts)
+
+				var stateRoot cmn.HexBytes
+				stateRoot = baseBlock.GetHeader().GetStateRoot()
+				log.Info().Msgf("State root : %v", stateRoot)
+			}
 		}
+	}()
 
-		if err := blockchainSvc.AddBaseBlock(baseBlock); err != nil {
-			log.Error().Err(err).Msg("Failed to Add Base Block")
-			continue
-		}
-
-		var (
-			pbbh cmn.HexBytes = baseBlock.Header.LastBlockID.BlockHash
-			bbh  cmn.HexBytes = baseBlock.GetHeader().GetBlock_ID().GetBlockHash()
-		)
-
-		log.Info().Msg("New Block Added")
-		log.Info().Msgf("Block Id: %v", bbh.String())
-		log.Info().Msgf("Last Block Id: %v", pbbh.String())
-		log.Info().Msgf("Block Height: %v", baseBlock.GetHeader().GetHeight())
-
-		s := lastBlock.GetHeader().GetTime().GetSeconds()
-		ts := time.Unix(s, 0)
-		log.Info().Msgf("Timestamp : %v", ts)
-
-		var stateRoot cmn.HexBytes
-		stateRoot = baseBlock.GetHeader().GetStateRoot()
-		log.Info().Msgf("State root : %v", stateRoot)
-	}
+	sig := <-sigs
+	log.Info().Msgf("Catch signal: %v", sig)
+	log.Info().Msg("Notify syncer to stop")
+	close(stop)
+	log.Info().Msg("Wait syncer to finish.")
+	wg.Wait()
+	log.Info().Msg("Syncer finished, exit now.")
 }
