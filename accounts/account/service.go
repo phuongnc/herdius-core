@@ -55,7 +55,7 @@ func (s *Service) SetAccount(account *protobuf.Account) {
 	s.account = account
 }
 
-// AssetSymbol returns servie asset symbol
+// AssetSymbol returns service asset symbol
 func (s *Service) AssetSymbol() string {
 	return s.assetSymbol
 }
@@ -135,7 +135,9 @@ func NewAccountService() *Service {
 
 func (s *Service) GetPublicAddress(keyBytes []byte) (string, error) {
 	pubkey := secp256k1.PubKeySecp256k1{}
-	cdc.UnmarshalBinaryBare(keyBytes, &pubkey)
+	if err := cdc.UnmarshalBinaryBare(keyBytes, &pubkey); err != nil {
+		return "", err
+	}
 	herAddress := pubkey.GetAddress()
 
 	return herAddress, nil

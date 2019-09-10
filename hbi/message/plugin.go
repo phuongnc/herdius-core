@@ -52,7 +52,7 @@ type TransactionMessagePlugin struct {
 func (state *AccountMessagePlugin) Receive(ctx *network.PluginContext) error {
 	switch msg := ctx.Message().(type) {
 	case *protoplugin.AccountRequest:
-		getAccount(msg.Address, ctx)
+		return getAccount(msg.Address, ctx)
 
 	case *protoplugin.AccountResponse:
 		plog.Info().Msgf("Account Response: %v", msg)
@@ -65,9 +65,10 @@ func (state *BlockMessagePlugin) Receive(ctx *network.PluginContext) error {
 	switch msg := ctx.Message().(type) {
 
 	case *protoplugin.LastBlockRequest:
-		getLastBlock(ctx)
+		return getLastBlock(ctx)
+		
 	case *protoplugin.BlockHeightRequest:
-		getBlock(msg.BlockHeight, ctx)
+		return getBlock(msg.BlockHeight, ctx)
 
 	case *protoplugin.BlockResponse:
 		plog.Info().Msgf("Block Response: %v", msg)
@@ -83,50 +84,47 @@ func (state *TransactionMessagePlugin) Receive(ctx *network.PluginContext) error
 		address := msg.GetAddress()
 		asset := msg.GetAsset()
 		accSrv := account.NewAccountService()
-		account, err := accSrv.GetAccountByAddress(address)
+		acc, err := accSrv.GetAccountByAddress(address)
 		if err != nil {
 			if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxsResponse{}); err != nil {
 				return fmt.Errorf(fmt.Sprintf("Failed to reply to client: %v", err))
 			}
-			return errors.New("Couldn't find the account due to: " + err.Error())
+			return errors.New("Couldn't find the acc due to: " + err.Error())
 		}
-		if account != nil && strings.EqualFold(account.Address, address) {
-			getTxsByAssetAndAccount(asset, address, ctx)
-		} else {
-			if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxsResponse{}); err != nil {
-				return fmt.Errorf(fmt.Sprintf("Failed to reply to client: %v", err))
-			}
-			return nil
+		if acc != nil && strings.EqualFold(acc.Address, address) {
+			return getTxsByAssetAndAccount(asset, address, ctx)
 		}
+		
+		if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxsResponse{}); err != nil {
+			return fmt.Errorf(fmt.Sprintf("Failed to reply to client: %v", err))
+		}
+		return nil
 
 	case *protoplugin.TxsByAddressRequest:
 		address := msg.GetAddress()
 		accSrv := account.NewAccountService()
-		account, err := accSrv.GetAccountByAddress(address)
+		acc, err := accSrv.GetAccountByAddress(address)
 		if err != nil {
 			if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxsResponse{}); err != nil {
 				return fmt.Errorf(fmt.Sprintf("Failed to reply to client: %v", err))
 			}
-			return errors.New("Couldn't find the account due to: " + err.Error())
+			return errors.New("Couldn't find the acc due to: " + err.Error())
 		}
 
-		if account != nil &&
-			strings.EqualFold(account.Address, address) {
-			getTxs(address, ctx)
-		} else {
-			if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxsResponse{}); err != nil {
-				return fmt.Errorf(fmt.Sprintf("Failed to reply to client: %v", err))
-			}
-			return nil
+		if acc != nil && strings.EqualFold(acc.Address, address) {
+			return getTxs(address, ctx)
 		}
+		
+		if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxsResponse{}); err != nil {
+			return fmt.Errorf(fmt.Sprintf("Failed to reply to client: %v", err))
+		}
+		return nil
 
 	case *protoplugin.TxsByBlockHeightRequest:
-		getTxsByblockHeight(msg.GetBlockHeight(), ctx)
+		return getTxsByblockHeight(msg.GetBlockHeight(), ctx)
 
 	case *protoplugin.TxDetailRequest:
-
-		txID := msg.GetTxId()
-		getTx(txID, ctx)
+		return getTx(msg.GetTxId(), ctx)
 
 	case *protoplugin.TxRequest:
 		tx := msg.GetTx()
@@ -137,25 +135,25 @@ func (state *TransactionMessagePlugin) Receive(ctx *network.PluginContext) error
 		accSrv.SetTxValue(tx.Asset.Value)
 		accSrv.SetTxLockedAmount(tx.Asset.LockedAmount)
 		accSrv.SetTxRedeemAmount(tx.Asset.RedeemedAmount)
-		account, err := accSrv.GetAccountByAddress(msg.Tx.GetSenderAddress())
+		acc, err := accSrv.GetAccountByAddress(msg.Tx.GetSenderAddress())
 		if err != nil {
 			if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxResponse{
 				TxId: "", Status: "failed", Queued: 0, Pending: 0,
-				Message: "Couldn't find the account due to : " + err.Error(),
+				Message: "Couldn't find the acc due to : " + err.Error(),
 			}); err != nil {
 				return fmt.Errorf(fmt.Sprintf("Failed to reply to client: %v", err))
 			}
-			return errors.New("Couldn't find the account due to: " + err.Error())
+			return errors.New("Couldn't find the acc due to: " + err.Error())
 		}
 
-		//Check Tx.Nonce > account.Nonce
-		if account != nil {
-			if !accSrv.VerifyAccountNonce(account, tx.GetAsset().Nonce) {
+		// Check Tx.Nonce > acc.Nonce
+		if acc != nil {
+			if !accSrv.VerifyAccountNonce(acc, tx.GetAsset().Nonce) {
 
 				txNonce := strconv.FormatUint(msg.Tx.GetAsset().Nonce, 10)
-				accountNonce := strconv.FormatUint(account.Nonce, 10)
+				accountNonce := strconv.FormatUint(acc.Nonce, 10)
 				failedVerificationMsg := "Transaction nonce " + txNonce +
-					" should be greater than account nonce " + accountNonce
+					" should be greater than acc nonce " + accountNonce
 
 				if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxResponse{
 					TxId: "", Status: "failed", Queued: 0, Pending: 0,
@@ -166,13 +164,13 @@ func (state *TransactionMessagePlugin) Receive(ctx *network.PluginContext) error
 				return errors.New(failedVerificationMsg)
 			}
 		}
-		accSrv.SetAccount(account)
-		// Check if tx is of type account update
+		accSrv.SetAccount(acc)
+		// Check if tx is of type acc update
 		// and verify external address exists
 		update := Update.String()
 		if strings.EqualFold(tx.Type, update) {
 			if accSrv.AccountExternalAddressExist() {
-				failedVerificationMsg := "External account existed: " + tx.Asset.ExternalSenderAddress
+				failedVerificationMsg := "External acc existed: " + tx.Asset.ExternalSenderAddress
 				if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxResponse{
 					TxId: "", Status: "failed", Queued: 0, Pending: 0,
 					Message: failedVerificationMsg,
@@ -191,11 +189,10 @@ func (state *TransactionMessagePlugin) Receive(ctx *network.PluginContext) error
 				}
 				return errors.New(failedVerificationMsg)
 			}
-			postAccountUpdateTx(tx, ctx, accSrv)
-			return nil
+			return postAccountUpdateTx(tx, ctx, accSrv)
 		}
 		// Check if tx is of type lock
-		// verify if external account address doesn't exists
+		// verify if external acc address doesn't exists
 		// verify if receiver address is herdius zero address
 		lock := Lock.String()
 		if strings.EqualFold(tx.Type, lock) {
@@ -232,10 +229,10 @@ func (state *TransactionMessagePlugin) Receive(ctx *network.PluginContext) error
 		}
 
 		// Check if asset has enough balance
-		// account.Balance > Tx.Value
+		// acc.Balance > Tx.Value
 		if strings.EqualFold(tx.Type, update) && !accSrv.VerifyAccountBalance() {
 			if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxResponse{
-				TxId: "", Status: "failed", Queued: 0, Pending: 0,
+				TxId: ""			, Status: "failed", Queued: 0, Pending: 0,
 				Message: "Not enough balance: " + string(msg.Tx.GetAsset().Value),
 			}); err != nil {
 				return fmt.Errorf(fmt.Sprintf("Failed to reply to client :%v", err))
@@ -246,7 +243,6 @@ func (state *TransactionMessagePlugin) Receive(ctx *network.PluginContext) error
 		// Add Tx to Mempool
 		mp := mempool.GetMemPool()
 		txbz, err := cdc.MarshalJSON(tx)
-
 		if err != nil {
 			if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxResponse{
 				TxId: "", Status: "failed", Queued: 0, Pending: 0,
@@ -311,9 +307,9 @@ func (state *TransactionMessagePlugin) Receive(ctx *network.PluginContext) error
 			Error:  fmt.Sprintf("Unable to find Tx (id: %v) in memory pool", msg.TxId),
 		})
 	case *protoplugin.TxLockedRequest:
-		getLockedTxsByBlockNumber(ctx, msg.BlockNumber)
+		return getLockedTxsByBlockNumber(ctx, msg.BlockNumber)
 	case *protoplugin.TxRedeemRequest:
-		getRedeemTxsByBlockNumber(ctx, msg.BlockNumber)
+		return getRedeemTxsByBlockNumber(ctx, msg.BlockNumber)
 	}
 	return nil
 }
@@ -330,7 +326,7 @@ func postAccountUpdateTx(tx *protoplugin.Tx, ctx *network.PluginContext, as acco
 			}); err != nil {
 			return fmt.Errorf(fmt.Sprintf("Failed to reply to client :%v", err))
 		}
-		return errors.New("Failed to Masshal Tx: " + err.Error())
+		return errors.New("Failed to Marshal Tx: " + err.Error())
 	}
 
 	pending, queue := mp.AddTx(tx, as)
@@ -390,21 +386,21 @@ func getBlock(height int64, ctx *network.PluginContext) error {
 
 func getAccount(address string, ctx *network.PluginContext) error {
 	accountSvc := &account.Service{}
-	account, err := accountSvc.GetAccountByAddress(address)
+	acc, err := accountSvc.GetAccountByAddress(address)
 	if err != nil {
 		plog.Error().Msgf("Failed to retrieve the Account: %v", err)
 	}
 
-	if account == nil {
+	if acc == nil {
 		if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.AccountResponse{}); err != nil {
 			return fmt.Errorf(fmt.Sprintf("Failed to reply to client :%v", err))
 		}
 	}
 
-	if account != nil {
+	if acc != nil {
 		eBalances := make(map[string]*protoplugin.EBalanceAsset)
 
-		for asset, assetAccount := range account.EBalances {
+		for asset, assetAccount := range acc.EBalances {
 			eBalances[asset] = &protoplugin.EBalanceAsset{}
 			eBalances[asset].Asset = make(map[string]*protobuf.EBalance)
 			for _, eb := range assetAccount.Asset {
@@ -419,15 +415,15 @@ func getAccount(address string, ctx *network.PluginContext) error {
 		}
 		accountResp := protoplugin.AccountResponse{
 			Address:              address,
-			Nonce:                account.Nonce,
-			Balance:              account.Balance,
-			StorageRoot:          account.StorageRoot,
-			PublicKey:            account.PublicKey,
+			Nonce:                acc.Nonce,
+			Balance:              acc.Balance,
+			StorageRoot:          acc.StorageRoot,
+			PublicKey:            acc.PublicKey,
 			EBalances:            eBalances,
-			Erc20Address:         account.Erc20Address,
-			ExternalNonce:        account.ExternalNonce,
-			LastBlockHeight:      account.LastBlockHeight,
-			FirstExternalAddress: account.FirstExternalAddress,
+			Erc20Address:         acc.Erc20Address,
+			ExternalNonce:        acc.ExternalNonce,
+			LastBlockHeight:      acc.LastBlockHeight,
+			FirstExternalAddress: acc.FirstExternalAddress,
 		}
 		if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &accountResp); err != nil {
 			return fmt.Errorf(fmt.Sprintf("Failed to reply to client :%v", err))
@@ -485,7 +481,7 @@ func getTxsByAssetAndAccount(asset, address string, ctx *network.PluginContext) 
 	return nil
 }
 
-// putTxUpdateRequest upates the Tx with the input string. After updating, calculates new Tx ID
+// putTxUpdateRequest updates the Tx with the input string. After updating, calculates new Tx ID
 func putTxUpdateRequest(id string, newTx *protoplugin.Tx) (string, *protoplugin.Tx, error) {
 	mp := mempool.GetMemPool()
 	i, origTx, err := mp.GetTx(id)
