@@ -66,7 +66,7 @@ func (state *BlockMessagePlugin) Receive(ctx *network.PluginContext) error {
 
 	case *protoplugin.LastBlockRequest:
 		return getLastBlock(ctx)
-		
+
 	case *protoplugin.BlockHeightRequest:
 		return getBlock(msg.BlockHeight, ctx)
 
@@ -94,7 +94,7 @@ func (state *TransactionMessagePlugin) Receive(ctx *network.PluginContext) error
 		if acc != nil && strings.EqualFold(acc.Address, address) {
 			return getTxsByAssetAndAccount(asset, address, ctx)
 		}
-		
+
 		if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxsResponse{}); err != nil {
 			return fmt.Errorf(fmt.Sprintf("Failed to reply to client: %v", err))
 		}
@@ -114,7 +114,7 @@ func (state *TransactionMessagePlugin) Receive(ctx *network.PluginContext) error
 		if acc != nil && strings.EqualFold(acc.Address, address) {
 			return getTxs(address, ctx)
 		}
-		
+
 		if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxsResponse{}); err != nil {
 			return fmt.Errorf(fmt.Sprintf("Failed to reply to client: %v", err))
 		}
@@ -191,13 +191,17 @@ func (state *TransactionMessagePlugin) Receive(ctx *network.PluginContext) error
 			}
 			return postAccountUpdateTx(tx, ctx, accSrv)
 		}
-		// Check if tx is of type lock
+
+		// Check if tx is of type lock or redeem
 		// verify if external acc address doesn't exists
 		// verify if receiver address is herdius zero address
 		lock := Lock.String()
-		if strings.EqualFold(tx.Type, lock) {
+		redeem := Redeem.String()
+		isLockTx := strings.EqualFold(tx.Type, lock)
+		isRedeemTx := strings.EqualFold(tx.Type, redeem)
+		if isLockTx || isRedeemTx {
 			if !accSrv.AccountExternalAddressExist() {
-				failedVerificationMsg := "External address does not exist: " + tx.Asset.ExternalSenderAddress
+				failedVerificationMsg := "external address does not exist: " + tx.Asset.ExternalSenderAddress
 				if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxResponse{
 					TxId: "", Status: "failed", Queued: 0, Pending: 0,
 					Message: failedVerificationMsg,
@@ -207,17 +211,7 @@ func (state *TransactionMessagePlugin) Receive(ctx *network.PluginContext) error
 				return errors.New(failedVerificationMsg)
 			}
 			if !accSrv.IsHerdiusZeroAddress() {
-				failedVerificationMsg := "Incorrect herdius zero address: " + tx.RecieverAddress
-				if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxResponse{
-					TxId: "", Status: "failed", Queued: 0, Pending: 0,
-					Message: failedVerificationMsg,
-				}); err != nil {
-					return fmt.Errorf(fmt.Sprintf("Failed to reply to client :%v", err))
-				}
-				return errors.New(failedVerificationMsg)
-			}
-			if !accSrv.VerifyLockedAmount() {
-				failedVerificationMsg := "Account does not have enough locked amount"
+				failedVerificationMsg := "incorrect Herdius zero address: " + tx.RecieverAddress
 				if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxResponse{
 					TxId: "", Status: "failed", Queued: 0, Pending: 0,
 					Message: failedVerificationMsg,
@@ -228,11 +222,33 @@ func (state *TransactionMessagePlugin) Receive(ctx *network.PluginContext) error
 			}
 		}
 
+		if isLockTx && !accSrv.VerifyLockedAmount() {
+			failedVerificationMsg := "account does not have enough locked amount"
+			if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxResponse{
+				TxId: "", Status: "failed", Queued: 0, Pending: 0,
+				Message: failedVerificationMsg,
+			}); err != nil {
+				return fmt.Errorf(fmt.Sprintf("Failed to reply to client :%v", err))
+			}
+			return errors.New(failedVerificationMsg)
+		}
+
+		if isRedeemTx && !accSrv.VerifyRedeemAmount() {
+			failedVerificationMsg := "account does not have enough amount to redeem"
+			if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxResponse{
+				TxId: "", Status: "failed", Queued: 0, Pending: 0,
+				Message: failedVerificationMsg,
+			}); err != nil {
+				return fmt.Errorf(fmt.Sprintf("Failed to reply to client :%v", err))
+			}
+			return errors.New(failedVerificationMsg)
+		}
+
 		// Check if asset has enough balance
 		// acc.Balance > Tx.Value
 		if strings.EqualFold(tx.Type, update) && !accSrv.VerifyAccountBalance() {
 			if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxResponse{
-				TxId: ""			, Status: "failed", Queued: 0, Pending: 0,
+				TxId: "", Status: "failed", Queued: 0, Pending: 0,
 				Message: "Not enough balance: " + string(msg.Tx.GetAsset().Value),
 			}); err != nil {
 				return fmt.Errorf(fmt.Sprintf("Failed to reply to client :%v", err))
