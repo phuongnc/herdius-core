@@ -231,3 +231,49 @@ func TestVerifyBTCRedeemAmount(t *testing.T) {
 	accService.SetTxRedeemAmount(2)
 	assert.False(t, accService.VerifyRedeemAmount())
 }
+
+func TestAccountExternalAddressExistForRedeemTrue(t *testing.T) {
+	accService := NewAccountService()
+	eBalance := &protobuf.EBalance{
+		Address: "0xD8f647855876549d2623f52126CE40D053a2ef6A",
+		Balance: 1,
+	}
+	eBalances := make(map[string]*protobuf.EBalanceAsset)
+	eBalances["ETH"] = &protobuf.EBalanceAsset{}
+	eBalances["HBTC"] = &protobuf.EBalanceAsset{}
+	eBalances["ETH"].Asset = make(map[string]*protobuf.EBalance)
+	eBalances["HBTC"].Asset = make(map[string]*protobuf.EBalance)
+	eBalances["ETH"].Asset[eBalance.Address] = eBalance
+	eBalances["HBTC"].Asset[eBalance.Address] = eBalance
+	firstExternalAddress := make(map[string]string)
+	firstExternalAddress["ETH"] = "0xD8f647855876549d2623f52126CE40D053a2ef6A"
+	account := &protobuf.Account{Balance: 1, EBalances: eBalances, FirstExternalAddress: firstExternalAddress}
+	accService.SetAccount(account)
+	accService.SetAssetSymbol("HBTC")
+	accService.SetTxType("Redeem")
+	accService.SetExtAddress("0xD8f647855876549d2623f52126CE40D053a2ef6A")
+	assert.True(t, accService.AccountExternalAddressExist())
+}
+
+func TestAccountExternalAddressExistForRedeemFalse(t *testing.T) {
+	accService := NewAccountService()
+	eBalance := &protobuf.EBalance{
+		Address: "0xD8f647855876549d2623f52126CE40D053a2ef6A",
+		Balance: 1,
+	}
+	eBalances := make(map[string]*protobuf.EBalanceAsset)
+	eBalances["ETH"] = &protobuf.EBalanceAsset{}
+	eBalances["HBTC"] = &protobuf.EBalanceAsset{}
+	eBalances["ETH"].Asset = make(map[string]*protobuf.EBalance)
+	eBalances["HBTC"].Asset = make(map[string]*protobuf.EBalance)
+	eBalances["ETH"].Asset[eBalance.Address] = eBalance
+	eBalances["HBTC"].Asset[eBalance.Address] = eBalance
+	firstExternalAddress := make(map[string]string)
+	firstExternalAddress["ETH"] = "0xD8f647855876549d2623f52126CE40D053a2ef6A-Another-Address"
+	account := &protobuf.Account{Balance: 1, EBalances: eBalances, FirstExternalAddress: firstExternalAddress}
+	accService.SetAccount(account)
+	accService.SetAssetSymbol("HBTC")
+	accService.SetTxType("Redeem")
+	accService.SetExtAddress("n2WH6nSNx7ZEwpR5rfCuvbEXX43am3TcNY")
+	assert.False(t, accService.AccountExternalAddressExist())
+}
