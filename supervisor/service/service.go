@@ -572,9 +572,17 @@ func updateRedeemAccountLockedBalance(senderAccount *statedb.Account, tx *plugin
 		return senderAccount
 	}
 	asset := strings.ToUpper(tx.Asset.Symbol)
-	if strings.EqualFold(tx.Asset.Symbol, "HBTC") {
+	firstExternalAddress := ""
+	switch strings.ToUpper(tx.Asset.Symbol) {
+	case "HBTC":
 		asset = "BTC"
+		firstExternalAddress = senderAccount.FirstExternalAddress["ETH"]
 	}
+
+	if firstExternalAddress == "" {
+		return senderAccount
+	}
+
 	if senderAccount.LockedBalance[asset] == nil {
 		if strings.EqualFold(tx.Asset.Symbol, "HBTC") {
 			// New HBTC Balance update
@@ -592,31 +600,30 @@ func updateRedeemAccountLockedBalance(senderAccount *statedb.Account, tx *plugin
 				Nonce:           senderAccount.EBalances[tx.Asset.Symbol][firstExternalAddress].Nonce,
 			}
 			senderAccount.EBalances[tx.Asset.Symbol][firstExternalAddress] = newHBTCEBal
-		} else {
-			return senderAccount
 		}
+		return senderAccount
 
 	} else if tx.SenderAddress == senderAccount.Address &&
 		tx.Asset.RedeemedAmount <= senderAccount.LockedBalance[asset][tx.Asset.ExternalSenderAddress] {
+
+		// Update locked balance
 		if senderAccount.LockedBalance[asset][tx.Asset.ExternalSenderAddress] > tx.Asset.RedeemedAmount {
 			senderAccount.LockedBalance[asset][tx.Asset.ExternalSenderAddress] -= tx.Asset.RedeemedAmount
 		} else {
 			senderAccount.LockedBalance[asset][tx.Asset.ExternalSenderAddress] = 0
 		}
-		newExternalBal := senderAccount.EBalances[asset][tx.Asset.ExternalSenderAddress].Balance + tx.Asset.RedeemedAmount
-		newEBal := statedb.EBalance{
-			Address:         tx.Asset.ExternalSenderAddress,
-			Balance:         newExternalBal,
-			LastBlockHeight: senderAccount.EBalances[asset][tx.Asset.ExternalSenderAddress].LastBlockHeight,
-			Nonce:           senderAccount.EBalances[asset][tx.Asset.ExternalSenderAddress].Nonce,
-		}
-		senderAccount.EBalances[asset][tx.Asset.ExternalSenderAddress] = newEBal
+
+		// Update symbol balance
+		eBalance := senderAccount.EBalances[tx.Asset.Symbol][firstExternalAddress]
+		eBalance.Balance -= tx.Asset.RedeemedAmount
+		senderAccount.EBalances[tx.Asset.Symbol][firstExternalAddress] = eBalance
 	}
 	senderAccount.Nonce = tx.Asset.Nonce
 	deposit(senderAccount, asset, tx.Asset.ExternalSenderAddress, tx.Asset.RedeemedAmount)
 	log.Printf("Redeemed Account: %v+\n", *senderAccount)
 	return senderAccount
 }
+
 func updateAccount(senderAccount *statedb.Account, tx *pluginproto.Tx) *statedb.Account {
 	if strings.EqualFold(strings.ToUpper(tx.Asset.Symbol), "HER") &&
 		len(senderAccount.Address) == 0 {
