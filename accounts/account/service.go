@@ -43,6 +43,7 @@ type Service struct {
 	txValue         uint64
 	txLockedAmount  uint64
 	txRedeemAmount  uint64
+	txType          string
 }
 
 // Account returns state db account
@@ -123,6 +124,16 @@ func (s *Service) TxRedeemAmount() uint64 {
 // SetTxRedeemAmount sets transaction transfer redeem amount
 func (s *Service) SetTxRedeemAmount(txRedeemAmount uint64) {
 	s.txRedeemAmount = txRedeemAmount
+}
+
+// TxType returns service tx type
+func (s *Service) TxType() string {
+	return s.txType
+}
+
+// SetTxType sets Service tx type
+func (s *Service) SetTxType(txType string) {
+	s.txType = txType
 }
 
 var (
@@ -248,9 +259,15 @@ func (s *Service) VerifyAccountNonce(a *protobuf.Account, txNonce uint64) bool {
 
 // AccountExternalAddressExist reports whether an external address existed in EBalances
 func (s *Service) AccountExternalAddressExist() bool {
-	if s.account != nil && s.account.EBalances != nil && s.account.EBalances[s.assetSymbol] != nil {
-		if asset := s.account.EBalances[s.assetSymbol].Asset; asset != nil {
-			_, ok := asset[s.extAddress]
+	assetSymbol := s.assetSymbol
+	extAddress := s.extAddress
+	if strings.EqualFold(s.txType, "Redeem") &&
+		(strings.EqualFold(assetSymbol, "HBTC") || strings.EqualFold(assetSymbol, "HTZX")) {
+		extAddress = s.account.FirstExternalAddress["ETH"]
+	}
+	if s.account != nil && s.account.EBalances != nil && s.account.EBalances[assetSymbol] != nil {
+		if asset := s.account.EBalances[assetSymbol].Asset; asset != nil {
+			_, ok := asset[extAddress]
 			return ok
 		}
 	}

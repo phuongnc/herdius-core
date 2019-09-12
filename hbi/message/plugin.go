@@ -135,6 +135,7 @@ func (state *TransactionMessagePlugin) Receive(ctx *network.PluginContext) error
 		accSrv.SetTxValue(tx.Asset.Value)
 		accSrv.SetTxLockedAmount(tx.Asset.LockedAmount)
 		accSrv.SetTxRedeemAmount(tx.Asset.RedeemedAmount)
+		accSrv.SetTxType(tx.Type)
 		acc, err := accSrv.GetAccountByAddress(msg.Tx.GetSenderAddress())
 		if err != nil {
 			if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxResponse{
