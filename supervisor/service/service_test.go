@@ -528,7 +528,7 @@ func TestUpdateAccountLockedBalanceMintHBTCFirst(t *testing.T) {
 }
 
 func TestUpdateRedeemAccountLockedBalance(t *testing.T) {
-	symbol := "ETH"
+	symbol := "BTC"
 	lockedAmount := uint64(10)
 	extSenderAddress := "0xD8f647855876549d2623f52126CE40D053a2ef6A"
 	asset := &pluginproto.Asset{
@@ -548,21 +548,21 @@ func TestUpdateRedeemAccountLockedBalance(t *testing.T) {
 
 	eBalance := statedb.EBalance{
 		Address: extAddr,
-		Balance: 0,
+		Balance: 10,
 	}
 	eBalances := make(map[string]map[string]statedb.EBalance)
 	eBalances[symbol] = make(map[string]statedb.EBalance)
 	eBalances[symbol][extAddr] = eBalance
 	account := &statedb.Account{
 		Address:              "HHy1CuT3UxCGJ3BHydLEvR5ut6HRy2qUvm",
-		FirstExternalAddress: make(map[string]string),
+		FirstExternalAddress: map[string]string{"ETH": extAddr},
 		EBalances:            eBalances,
 	}
 	account = updateAccountLockedBalance(account, tx)
 	assert.Equal(t, lockedAmount, account.LockedBalance[symbol][extSenderAddress])
 
 	// Redeem test
-	symbol = "ETH"
+	symbol = "HBTC"
 	value := uint64(5)
 	extSenderAddress = "0xD8f647855876549d2623f52126CE40D053a2ef6A"
 	asset = &pluginproto.Asset{
@@ -579,7 +579,8 @@ func TestUpdateRedeemAccountLockedBalance(t *testing.T) {
 	}
 
 	account = updateRedeemAccountLockedBalance(account, tx)
-	assert.Equal(t, value, account.LockedBalance[symbol][extSenderAddress])
+	assert.Equal(t, value, account.LockedBalance["BTC"][extSenderAddress])
+	assert.Equal(t, value, account.EBalances["BTC"][extSenderAddress].Balance)
 }
 
 func TestValidatorGroups(t *testing.T) {
