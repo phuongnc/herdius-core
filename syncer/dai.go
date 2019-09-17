@@ -47,6 +47,11 @@ func (ds *DaiSyncer) GetExtBalance() error {
 
 		// Get latest block number
 		latestBlockNumber, err := ds.getLatestBlockNumber(client)
+		if err != nil {
+			log.Error().Err(err).Msg("Error getting Latest Block Number from RPC")
+			ds.syncer.addressError[ta.Address] = true
+			continue
+		}
 
 		//Get nonce
 		nonce, err := ds.getNonce(client, address, latestBlockNumber)
@@ -58,15 +63,16 @@ func (ds *DaiSyncer) GetExtBalance() error {
 
 		instance, err := contract.NewToken(tokenAddress, client)
 		if err != nil {
-			return err
+			log.Error().Err(err).Msg("Error getting TOKEN instance")
+			ds.syncer.addressError[ta.Address] = true
+			continue
 		}
 		ctx, cancel := context.WithTimeout(context.Background(), rpcTimeout)
 		defer cancel()
 
 		balance, err := instance.BalanceOf(&bind.CallOpts{BlockNumber: latestBlockNumber, Context: ctx}, address)
 		if err != nil {
-			log.Error().Msgf("Error getting DAI Balance from RPC: %v", err)
-
+			log.Error().Err(err).Msgf("Error getting DAI Balance from RPC: %v", err)
 			ds.syncer.addressError[ta.Address] = true
 			continue
 		}
