@@ -20,6 +20,7 @@ type detail struct {
 	LevelDB           string
 	NodeKeyDir        string
 	S3Bucket          string
+	CheckerBtcURL     string
 }
 
 // GetConfiguration ...
@@ -39,16 +40,17 @@ func GetConfiguration(env string) *detail {
 			log.Printf("Config file not found: %v", err)
 		} else {
 			configuration = &detail{
-				SelfBroadcastIP:   viper.GetString(fmt.Sprint(env, ".selfbroadcastip")),
-				SelfBroadcastPort: viper.GetInt(fmt.Sprint(env, ".selfbroadcastport")),
-				Protocol:          viper.GetString(fmt.Sprint(env, ".protocol")),
-				ChainDBPath:       viper.GetString(fmt.Sprint(env, ".chaindbpath")),
-				StateDBPath:       viper.GetString(fmt.Sprint(env, ".statedbpath")),
-				BlockDBPath:       viper.GetString(fmt.Sprint(env, ".blockdbpath")),
-				BadgerDB:          viper.GetString(fmt.Sprint(env, ".badgerdb")),
-				LevelDB:           viper.GetString(fmt.Sprint(env, ".leveldb")),
-				NodeKeyDir:        viper.GetString(fmt.Sprint(env, ".nodekeydir")),
-				S3Bucket:          viper.GetString(fmt.Sprint(env, ".s3backupbucket")),
+				SelfBroadcastIP:   viper.GetString(env + ".selfbroadcastip"),
+				SelfBroadcastPort: viper.GetInt(env + ".selfbroadcastport"),
+				Protocol:          viper.GetString(env + ".protocol"),
+				ChainDBPath:       viper.GetString(env + ".chaindbpath"),
+				StateDBPath:       viper.GetString(env + ".statedbpath"),
+				BlockDBPath:       viper.GetString(env + ".blockdbpath"),
+				BadgerDB:          viper.GetString(env + ".badgerdb"),
+				LevelDB:           viper.GetString(env + ".leveldb"),
+				NodeKeyDir:        viper.GetString(env + ".nodekeydir"),
+				S3Bucket:          viper.GetString(env + ".s3backupbucket"),
+				CheckerBtcURL:     viper.GetString(env + ".checkerbtcurl"),
 			}
 		}
 	})

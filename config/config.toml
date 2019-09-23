@@ -15,6 +15,7 @@ hercontractaddress = "0x7562157d0bbb6d78935133bf06ae279e707aa9ad"
 s3backupbucket = "herdius-blockchain-backup-dev"
 hbtcrpc = "http://100.26.41.2:81/contract/hbtc"
 tezosrpc = "http://172.105.158.208:9000"
+checkerbtcurl = "https://blockchain.info/latestblock"
 
 [staging]
 selfbroadcastip = "10.0.1.159"
@@ -33,7 +34,7 @@ hercontractaddress = "0x7562157d0bbb6d78935133bf06ae279e707aa9ad"
 s3backupbucket = "herdius-blockchain-backup-staging"
 hbtcrpc = "http://100.26.41.2:81/contract/hbtc"
 tezosrpc = "http://172.105.158.208:9000"
-
+checkerbtcurl = "https://blockchain.info/latestblock"
 
 [prod]
 selfbroadcastip = "not supported"
@@ -50,3 +51,4 @@ blockchaininforpc = "https://blockchain.info/q"
 s3backupbucket = "herdius-blockchain-backup-prod"
 hbtcrpc = "http://100.26.41.2:81/contract/hbtc"
 tezosrpc = "http://172.105.158.208:9000"
+checkerbtcurl = "https://blockchain.info/latestblock"
