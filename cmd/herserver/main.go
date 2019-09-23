@@ -173,18 +173,27 @@ func main() {
 	builder.SetAddress(network.FormatAddress(cfg.Protocol, cfg.SelfBroadcastIP, uint16(port)))
 
 	// Register peer discovery plugin.
-	builder.AddPlugin(new(discovery.Plugin))
+	if err := builder.AddPlugin(new(discovery.Plugin)); err != nil {
+		log.Fatal().Err(err).Msg("failed to add discovery plugin")
+	}
 
 	// Add custom Herdius plugin.
-	builder.AddPlugin(new(HerdiusMessagePlugin))
-	builder.AddPlugin(new(message.BlockMessagePlugin))
-	builder.AddPlugin(new(message.AccountMessagePlugin))
-	builder.AddPlugin(new(message.TransactionMessagePlugin))
+	if err := builder.AddPlugin(new(HerdiusMessagePlugin)); err != nil {
+		log.Fatal().Err(err).Msg("failed to add herdius message plugin")
+	}
+	if err := builder.AddPlugin(new(message.BlockMessagePlugin)); err != nil {
+		log.Fatal().Err(err).Msg("failed to add block message plugin")
+	}
+	if err := builder.AddPlugin(new(message.AccountMessagePlugin)); err != nil {
+		log.Fatal().Err(err).Msg("failed to add account message plugin")
+	}
+	if err := builder.AddPlugin(message.NewTransactionMessagePlugin(env)); err != nil {
+		log.Fatal().Err(err).Msg("failed to add transaction message plugin")
+	}
 
 	net, err := builder.Build()
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to build network")
-		return
 	}
 
 	go net.Listen()

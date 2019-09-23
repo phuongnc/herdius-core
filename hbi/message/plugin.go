@@ -10,6 +10,7 @@ import (
 
 	"github.com/herdius/herdius-core/accounts/account"
 	"github.com/herdius/herdius-core/blockchain"
+	"github.com/herdius/herdius-core/checker"
 	"github.com/herdius/herdius-core/storage/mempool"
 
 	"github.com/herdius/herdius-core/hbi/protobuf"
@@ -43,6 +44,12 @@ type AccountMessagePlugin struct {
 // TransactionMessagePlugin will receive all Transaction specific messages.
 type TransactionMessagePlugin struct {
 	*network.Plugin
+	env string
+}
+
+// NewTransactionMessagePlugin returns a TransactionMessagePllugin with given env.
+func NewTransactionMessagePlugin(env string) *TransactionMessagePlugin {
+	return &TransactionMessagePlugin{env: env}
 }
 
 // Receive handles account specific messages
@@ -125,6 +132,17 @@ func (state *TransactionMessagePlugin) Receive(ctx *network.PluginContext) error
 
 	case *protoplugin.TxRequest:
 		tx := msg.GetTx()
+		assetChecker := checker.New(state.env)
+		if !assetChecker.Check(tx.Asset.Symbol) {
+			err := fmt.Errorf("%s network is not available.", tx.Asset.Symbol)
+			if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxResponse{
+				TxId: "", Status: "failed", Queued: 0, Pending: 0,
+				Message: err.Error(),
+			}); err != nil {
+				return fmt.Errorf(fmt.Sprintf("Failed to reply to client: %v", err))
+			}
+			return err
+		}
 		accSrv := account.NewAccountService()
 		accSrv.SetReceiverAddress(tx.RecieverAddress)
 		accSrv.SetAssetSymbol(tx.Asset.Symbol)
