@@ -21,6 +21,7 @@ type detail struct {
 	NodeKeyDir        string
 	S3Bucket          string
 	CheckerBtcURL     string
+	EthRPCURL         string
 }
 
 // GetConfiguration ...
@@ -51,6 +52,7 @@ func GetConfiguration(env string) *detail {
 				NodeKeyDir:        viper.GetString(env + ".nodekeydir"),
 				S3Bucket:          viper.GetString(env + ".s3backupbucket"),
 				CheckerBtcURL:     viper.GetString(env + ".checkerbtcurl"),
+				EthRPCURL:         viper.GetString(env + ".ethrpc"),
 			}
 		}
 	})

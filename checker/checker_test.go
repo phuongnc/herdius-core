@@ -43,3 +43,13 @@ func TestCheckerNetwork(t *testing.T) {
 	}
 
 }
+
+func TestETHChecker(t *testing.T) {
+	c := &ETH{"https://ropsten.infura.io/v3/"}
+	assert.True(t, c.Check())
+}
+
+func TestETHCheckerFalse(t *testing.T) {
+	c := &ETH{"https://wrong-ropsten.infura.io/v3/"}
+	assert.False(t, c.Check())
+}

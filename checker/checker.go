@@ -1,10 +1,16 @@
 package checker
 
 import (
+	"context"
+	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
+	"strings"
 
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/herdius/herdius-core/config"
 )
 
@@ -20,7 +26,10 @@ func New(env string) *Network {
 	n.checker = make(map[string]Checker)
 	n.checker["BTC"] = &BTC{c.CheckerBtcURL}
 	n.checker["HER"] = &HER{}
-
+	n.checker["ETH"] = &ETH{c.EthRPCURL}
+	n.checker["HBTC"] = &ETH{c.EthRPCURL}
+	n.checker["HTZX"] = &ETH{c.EthRPCURL}
+	n.checker["HLTC"] = &ETH{c.EthRPCURL}
 	return n
 }
 
@@ -66,7 +75,20 @@ type ETH struct {
 
 // Check reports whether ETH network is available for processing.
 func (e *ETH) Check() bool {
-	// TODO: implement later.
+	ethURL := e.url
+	if strings.Index(e.url, ".infura.io") > -1 {
+		ethURL += os.Getenv("INFURAID")
+	}
+	client, err := ethclient.Dial(ethURL)
+	if err != nil {
+		log.Println(fmt.Sprintf("Failed to create ethereum client %s.", err))
+		return false
+	}
+	_, err = client.BlockByNumber(context.Background(), nil)
+	if err != nil {
+		log.Println(fmt.Sprintf("Failed to get block detail %s.", err))
+		return false
+	}
 	return true
 }
 
@@ -85,7 +107,19 @@ type HBTC struct {
 }
 
 func (hbtc *HBTC) Check() bool {
-	// TODO: implement later.
+	ethURL := hbtc.url
+	if strings.Index(hbtc.url, ".infura.io") > -1 {
+		ethURL += os.Getenv("INFURAID")
+	}
+	client, err := ethclient.Dial(ethURL)
+	if err != nil {
+		log.Println(fmt.Sprintf("Failed to create ethereum client %s.", err))
+		return false
+	}
+	_, err = client.BlockByNumber(context.Background(), nil)
+	if err != nil {
+		return false
+	}
 	return true
 }
 
@@ -95,7 +129,19 @@ type HTZX struct {
 }
 
 func (htzx *HTZX) Check() bool {
-	// TODO: implement later.
+	ethURL := htzx.url
+	if strings.Index(htzx.url, ".infura.io") > -1 {
+		ethURL += os.Getenv("INFURAID")
+	}
+	client, err := ethclient.Dial(ethURL)
+	if err != nil {
+		log.Println(fmt.Sprintf("Failed to create ethereum client %s.", err))
+		return false
+	}
+	_, err = client.BlockByNumber(context.Background(), nil)
+	if err != nil {
+		return false
+	}
 	return true
 }
 
@@ -125,6 +171,18 @@ type HLTC struct {
 }
 
 func (hltc *HLTC) Check() bool {
-	// TODO: implement later.
+	ethURL := hltc.url
+	if strings.Index(hltc.url, ".infura.io") > -1 {
+		ethURL += os.Getenv("INFURAID")
+	}
+	client, err := ethclient.Dial(ethURL)
+	if err != nil {
+		log.Println(fmt.Sprintf("Failed to create ethereum client %s.", err))
+		return false
+	}
+	_, err = client.BlockByNumber(context.Background(), nil)
+	if err != nil {
+		return false
+	}
 	return true
 }
