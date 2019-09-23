@@ -35,8 +35,9 @@ func TestBTCChecker(t *testing.T) {
 }
 
 func TestCheckerNetwork(t *testing.T) {
-	n, err := New("dev")
-	require.Nil(t, err)
+	n := New("dev")
+	require.True(t, n.Check("HER"))
+
 	if !n.Check("BTC") {
 		t.Log("Bitcoin network is down")
 	}
