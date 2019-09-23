@@ -21,6 +21,7 @@ import (
 )
 
 // TxType ...
+//go:generate stringer -type=TxType
 type TxType int
 
 const (
@@ -28,10 +29,6 @@ const (
 	Lock
 	Redeem
 )
-
-func (t TxType) String() string {
-	return [...]string{"Update", "Lock", "Redeem"}[t]
-}
 
 // BlockMessagePlugin will receive all Block specific messages.
 type BlockMessagePlugin struct {
