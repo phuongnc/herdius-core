@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -45,8 +46,11 @@ func TestCheckerNetwork(t *testing.T) {
 }
 
 func TestETHChecker(t *testing.T) {
-	c := &ETH{"https://ropsten.infura.io/v3/"}
-	assert.True(t, c.Check())
+	infuraID := os.Getenv("INFURAID")
+	if len(infuraID) > 0 {
+		c := &ETH{"https://ropsten.infura.io/v3/"}
+		assert.True(t, c.Check())
+	}
 }
 
 func TestETHCheckerFalse(t *testing.T) {
