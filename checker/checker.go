@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/herdius/herdius-core/config"
@@ -79,7 +80,7 @@ func (e *ETH) Check() bool {
 	if strings.Index(e.url, ".infura.io") > -1 {
 		ethURL += os.Getenv("INFURAID")
 	}
-	client, err := ethclient.Dial(ethURL)
+	client, err := getEthClient(ethURL)
 	if err != nil {
 		log.Println(fmt.Sprintf("Failed to create ethereum client %s.", err))
 		return false
@@ -111,7 +112,7 @@ func (hbtc *HBTC) Check() bool {
 	if strings.Index(hbtc.url, ".infura.io") > -1 {
 		ethURL += os.Getenv("INFURAID")
 	}
-	client, err := ethclient.Dial(ethURL)
+	client, err := getEthClient(ethURL)
 	if err != nil {
 		log.Println(fmt.Sprintf("Failed to create ethereum client %s.", err))
 		return false
@@ -133,7 +134,7 @@ func (htzx *HTZX) Check() bool {
 	if strings.Index(htzx.url, ".infura.io") > -1 {
 		ethURL += os.Getenv("INFURAID")
 	}
-	client, err := ethclient.Dial(ethURL)
+	client, err := getEthClient(ethURL)
 	if err != nil {
 		log.Println(fmt.Sprintf("Failed to create ethereum client %s.", err))
 		return false
@@ -175,7 +176,7 @@ func (hltc *HLTC) Check() bool {
 	if strings.Index(hltc.url, ".infura.io") > -1 {
 		ethURL += os.Getenv("INFURAID")
 	}
-	client, err := ethclient.Dial(ethURL)
+	client, err := getEthClient(ethURL)
 	if err != nil {
 		log.Println(fmt.Sprintf("Failed to create ethereum client %s.", err))
 		return false
@@ -185,4 +186,24 @@ func (hltc *HLTC) Check() bool {
 		return false
 	}
 	return true
+}
+
+func getEthClient(ethURL string) (*ethclient.Client, error) {
+	clientChan := make(chan *ethclient.Client, 1)
+	errChan := make(chan error, 1)
+	go func() {
+		client, err := ethclient.Dial(ethURL)
+		if err != nil {
+			errChan <- err
+		}
+		clientChan <- client
+	}()
+	select {
+	case res := <-clientChan:
+		return res, nil
+	case ethErr := <-errChan:
+		return nil, ethErr
+	case <-time.After(2 * time.Second):
+		return nil, fmt.Errorf(fmt.Sprintf("Could not connect to eth client due to timeout"))
+	}
 }
