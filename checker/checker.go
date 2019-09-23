@@ -4,6 +4,8 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/herdius/herdius-core/config"
 )
 
 // Checker checks availability of asset network
@@ -12,12 +14,26 @@ type Checker interface {
 }
 
 // New returns new Checker for given asset.
-func New(asset, url string) Checker {
-	switch asset {
-	case "BTC":
-		return &BTC{url}
+func New(env string) (*Network, error) {
+	c := config.GetConfiguration(env)
+	n := &Network{}
+	n.checker = make(map[string]Checker)
+	n.checker["BTC"] = &BTC{c.CheckerBtcURL}
+
+	return n, nil
+}
+
+type Network struct {
+	checker map[string]Checker
+}
+
+func (n *Network) Check(asset string) bool {
+	c, ok := n.checker[asset]
+	if !ok {
+		return false
 	}
-	return nil
+
+	return c.Check()
 }
 
 // BTC represents checker for bitcoin.

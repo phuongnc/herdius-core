@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func newTestServer(ok bool) *httptest.Server {
@@ -24,11 +25,20 @@ func TestBTCChecker(t *testing.T) {
 	ts := newTestServer(true)
 	defer ts.Close()
 
-	c := New("BTC", ts.URL)
+	c := &BTC{ts.URL}
 	assert.True(t, c.Check())
 
 	ts = newTestServer(false)
 	defer ts.Close()
-	c = New("BTC", ts.URL)
+	c.url = ts.URL
 	assert.False(t, c.Check())
+}
+
+func TestCheckerNetwork(t *testing.T) {
+	n, err := New("dev")
+	require.Nil(t, err)
+	if !n.Check("BTC") {
+		t.Log("Bitcoin network is down")
+	}
+
 }
