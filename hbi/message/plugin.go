@@ -134,7 +134,7 @@ func (state *TransactionMessagePlugin) Receive(ctx *network.PluginContext) error
 		tx := msg.GetTx()
 		assetChecker := checker.New(state.env)
 		if !assetChecker.Check(tx.Asset.Symbol) {
-			err := fmt.Errorf("%s network is not available.", tx.Asset.Symbol)
+			err := fmt.Errorf("%s network is not available", tx.Asset.Symbol)
 			if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxResponse{
 				TxId: "", Status: "failed", Queued: 0, Pending: 0,
 				Message: err.Error(),
