@@ -661,4 +661,4 @@ func (_Token *TokenFilterer) WatchTransfer(opts *bind.WatchOpts, sink chan<- *To
 			}
 		}
 	}), nil
-} 
+}

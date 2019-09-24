@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/herdius/herdius-core/crypto/encoding/amino"
+	cryptoAmino "github.com/herdius/herdius-core/crypto/encoding/amino"
 	amino "github.com/tendermint/go-amino"
 )
 

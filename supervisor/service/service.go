@@ -10,15 +10,15 @@ import (
 	"sync"
 	"time"
 
-	pluginproto "github.com/herdius/herdius-core/hbi/protobuf"
-
 	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/herdius/herdius-core/aws"
 	"github.com/herdius/herdius-core/blockchain/protobuf"
 	cryptokey "github.com/herdius/herdius-core/crypto"
 	hehash "github.com/herdius/herdius-core/crypto/herhash"
 	"github.com/herdius/herdius-core/crypto/merkle"
 	"github.com/herdius/herdius-core/crypto/secp256k1"
+	pluginproto "github.com/herdius/herdius-core/hbi/protobuf"
 	cmn "github.com/herdius/herdius-core/libs/common"
 	cryptokeys "github.com/herdius/herdius-core/p2p/crypto"
 	plog "github.com/herdius/herdius-core/p2p/log"
@@ -26,6 +26,7 @@ import (
 	"github.com/herdius/herdius-core/storage/mempool"
 	"github.com/herdius/herdius-core/storage/state/statedb"
 	"github.com/herdius/herdius-core/supervisor/transaction"
+	aSymbol "github.com/herdius/herdius-core/symbol"
 	txbyte "github.com/herdius/herdius-core/tx"
 )
 
@@ -550,16 +551,16 @@ func updateAccountLockedBalance(senderAccount *statedb.Account, tx *pluginproto.
 	}
 	withdraw(senderAccount, tx.Asset.Symbol, tx.Asset.ExternalSenderAddress, tx.Asset.LockedAmount)
 	senderAccount.Nonce = tx.Asset.Nonce
-	if strings.EqualFold("BTC", tx.Asset.Symbol) {
-		if _, ok := senderAccount.EBalances["HBTC"]; !ok {
+	if strings.EqualFold(aSymbol.BTC, tx.Asset.Symbol) {
+		if _, ok := senderAccount.EBalances[aSymbol.HBTC]; !ok {
 			eBalance := statedb.EBalance{}
-			eBalance.Address = senderAccount.FirstExternalAddress["ETH"]
+			eBalance.Address = senderAccount.FirstExternalAddress[aSymbol.ETH]
 			eBalance.Balance = 0
 			eBalance.LastBlockHeight = 0
 			eBalance.Nonce = 1
 			eBalances := senderAccount.EBalances
-			eBalances["HBTC"] = make(map[string]statedb.EBalance)
-			eBalances["HBTC"][senderAccount.FirstExternalAddress["ETH"]] = eBalance
+			eBalances[aSymbol.HBTC] = make(map[string]statedb.EBalance)
+			eBalances[aSymbol.HBTC][senderAccount.FirstExternalAddress[aSymbol.ETH]] = eBalance
 			senderAccount.EBalances = eBalances
 		}
 	}
@@ -574,9 +575,9 @@ func updateRedeemAccountLockedBalance(senderAccount *statedb.Account, tx *plugin
 	asset := strings.ToUpper(tx.Asset.Symbol)
 	firstExternalAddress := ""
 	switch strings.ToUpper(tx.Asset.Symbol) {
-	case "HBTC":
-		asset = "BTC"
-		firstExternalAddress = senderAccount.FirstExternalAddress["ETH"]
+	case aSymbol.HBTC:
+		asset = aSymbol.BTC
+		firstExternalAddress = senderAccount.FirstExternalAddress[aSymbol.ETH]
 	}
 
 	if firstExternalAddress == "" {
@@ -584,9 +585,9 @@ func updateRedeemAccountLockedBalance(senderAccount *statedb.Account, tx *plugin
 	}
 
 	if senderAccount.LockedBalance[asset] == nil {
-		if strings.EqualFold(tx.Asset.Symbol, "HBTC") {
+		if strings.EqualFold(tx.Asset.Symbol, aSymbol.HBTC) {
 			// New HBTC Balance update
-			firstExternalAddress := senderAccount.FirstExternalAddress["ETH"]
+			firstExternalAddress := senderAccount.FirstExternalAddress[aSymbol.ETH]
 			var newHBTCExternalBal uint64
 			if senderAccount.EBalances[tx.Asset.Symbol][tx.Asset.ExternalSenderAddress].Balance > tx.Asset.RedeemedAmount {
 				newHBTCExternalBal = senderAccount.EBalances[tx.Asset.Symbol][tx.Asset.ExternalSenderAddress].Balance - tx.Asset.RedeemedAmount
@@ -625,7 +626,7 @@ func updateRedeemAccountLockedBalance(senderAccount *statedb.Account, tx *plugin
 }
 
 func updateAccount(senderAccount *statedb.Account, tx *pluginproto.Tx) *statedb.Account {
-	if strings.EqualFold(strings.ToUpper(tx.Asset.Symbol), "HER") &&
+	if strings.EqualFold(strings.ToUpper(tx.Asset.Symbol), aSymbol.HER) &&
 		len(senderAccount.Address) == 0 {
 		senderAccount.Address = tx.SenderAddress
 		senderAccount.Balance = 0
@@ -634,11 +635,11 @@ func updateAccount(senderAccount *statedb.Account, tx *pluginproto.Tx) *statedb.
 		log.Println("Account register", tx)
 		senderAccount.Erc20Address = tx.Asset.ExternalSenderAddress
 		senderAccount.FirstExternalAddress = make(map[string]string)
-	} else if strings.EqualFold(strings.ToUpper(tx.Asset.Symbol), "HER") &&
+	} else if strings.EqualFold(strings.ToUpper(tx.Asset.Symbol), aSymbol.HER) &&
 		tx.SenderAddress == senderAccount.Address {
 		senderAccount.Balance += tx.Asset.Value
 		senderAccount.Nonce = tx.Asset.Nonce
-	} else if !strings.EqualFold(strings.ToUpper(tx.Asset.Symbol), "HER") &&
+	} else if !strings.EqualFold(strings.ToUpper(tx.Asset.Symbol), aSymbol.HER) &&
 		tx.SenderAddress == senderAccount.Address {
 
 		// Update account's Nonce
@@ -682,7 +683,7 @@ func updateAccount(senderAccount *statedb.Account, tx *pluginproto.Tx) *statedb.
 
 // Debit Sender's Account
 func withdraw(senderAccount *statedb.Account, assetSymbol, assetExtAddress string, txValue uint64) {
-	if strings.EqualFold(assetSymbol, "HER") {
+	if strings.EqualFold(assetSymbol, aSymbol.HER) {
 		balance := senderAccount.Balance
 		if balance >= txValue {
 			senderAccount.Balance -= txValue
@@ -699,7 +700,7 @@ func withdraw(senderAccount *statedb.Account, assetSymbol, assetExtAddress strin
 
 // Credit Receiver's Account
 func deposit(receiverAccount *statedb.Account, assetSymbol, assetExtAddress string, txValue uint64) {
-	if strings.EqualFold(assetSymbol, "HER") {
+	if strings.EqualFold(assetSymbol, aSymbol.HER) {
 		receiverAccount.Balance += txValue
 	} else {
 		// Get balance of the required external asset
@@ -975,7 +976,7 @@ func (s *Supervisor) updateStateForTxs(txs *txbyte.Txs, stateTrie statedb.Trie) 
 		// Check if tx is of type account update
 		if strings.EqualFold(tx.Type, "External") {
 			symbol := tx.Asset.Symbol
-			if symbol != "BTC" && symbol != "ETH" && symbol != "HBTC" && symbol != "XTZ" {
+			if symbol != aSymbol.BTC && symbol != aSymbol.ETH && symbol != aSymbol.HBTC && symbol != aSymbol.XTZ {
 				log.Printf("Unsupported external asset symbol: %v", symbol)
 				plog.Error().Msgf("Unsupported external asset symbol: %v", symbol)
 				continue
@@ -1083,7 +1084,7 @@ func (s *Supervisor) updateStateForTxs(txs *txbyte.Txs, stateTrie statedb.Trie) 
 		if strings.EqualFold(tx.Asset.Network, "Herdius") {
 
 			// Verify if sender has an address for corresponding external asset
-			if !strings.EqualFold(tx.Asset.Symbol, "HER") &&
+			if !strings.EqualFold(tx.Asset.Symbol, aSymbol.HER) &&
 				!isExternalAssetAddressExist(&senderAccount, tx.Asset.Symbol, tx.Asset.ExternalSenderAddress) {
 				tx.Status = "failed"
 				txbz, err = cdc.MarshalJSON(&tx)
@@ -1112,7 +1113,7 @@ func (s *Supervisor) updateStateForTxs(txs *txbyte.Txs, stateTrie statedb.Trie) 
 			}
 
 			// Verify if Receiver has an address for corresponding external asset
-			if !strings.EqualFold(tx.Asset.Symbol, "HER") && len(rcvrAccount.EBalances[tx.Asset.Symbol]) == 0 {
+			if !strings.EqualFold(tx.Asset.Symbol, aSymbol.HER) && len(rcvrAccount.EBalances[tx.Asset.Symbol]) == 0 {
 				tx.Status = "failed"
 				txbz, err = cdc.MarshalJSON(&tx)
 				(*txs)[i] = txbz

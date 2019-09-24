@@ -13,6 +13,7 @@ import (
 	"github.com/herdius/herdius-core/crypto/secp256k1"
 	cmn "github.com/herdius/herdius-core/libs/common"
 	"github.com/herdius/herdius-core/storage/state/statedb"
+	aSymbol "github.com/herdius/herdius-core/symbol"
 	amino "github.com/tendermint/go-amino"
 )
 
@@ -226,7 +227,7 @@ func (s *Service) GetAccountByAddress(address string) (*protobuf.Account, error)
 func (s *Service) VerifyAccountBalance() bool {
 	symbol := strings.ToUpper(s.assetSymbol)
 	// Get the balance of required asset
-	if strings.EqualFold(symbol, "HER") {
+	if strings.EqualFold(symbol, aSymbol.HER) {
 		if s.account.Balance >= s.txValue {
 			return true
 		}
@@ -262,8 +263,8 @@ func (s *Service) AccountExternalAddressExist() bool {
 	assetSymbol := s.assetSymbol
 	extAddress := s.extAddress
 	if strings.EqualFold(s.txType, "Redeem") &&
-		(strings.EqualFold(assetSymbol, "HBTC") || strings.EqualFold(assetSymbol, "HTZX")) {
-		extAddress = s.account.FirstExternalAddress["ETH"]
+		(strings.EqualFold(assetSymbol, aSymbol.HBTC) || strings.EqualFold(assetSymbol, aSymbol.HTZX)) {
+		extAddress = s.account.FirstExternalAddress[aSymbol.ETH]
 	}
 	if s.account != nil && s.account.EBalances != nil && s.account.EBalances[assetSymbol] != nil {
 		if asset := s.account.EBalances[assetSymbol].Asset; asset != nil {
@@ -301,9 +302,9 @@ func (s *Service) VerifyLockedAmount() bool {
 // VerifyRedeemAmount checks account have proper locked amount for redeeming
 func (s *Service) VerifyRedeemAmount() bool {
 	log.Printf("Account before Redeem: %+v", s.account)
-	if strings.EqualFold(s.assetSymbol, "HBTC") {
-		if s.account != nil && s.account.LockBalances != nil && s.account.LockBalances["BTC"] != nil {
-			if asset := s.account.LockBalances["BTC"].Asset; asset != nil {
+	if strings.EqualFold(s.assetSymbol, aSymbol.HBTC) {
+		if s.account != nil && s.account.LockBalances != nil && s.account.LockBalances[aSymbol.BTC] != nil {
+			if asset := s.account.LockBalances[aSymbol.BTC].Asset; asset != nil {
 				return s.txRedeemAmount <= asset[s.extAddress]
 			}
 		}

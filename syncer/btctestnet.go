@@ -10,6 +10,7 @@ import (
 	"github.com/herdius/herdius-core/p2p/log"
 	external "github.com/herdius/herdius-core/storage/exbalance"
 	"github.com/herdius/herdius-core/storage/state/statedb"
+	"github.com/herdius/herdius-core/symbol"
 )
 
 // BTCTestNetSyncer syncs all external BTC accounts in btctestnet.
@@ -38,7 +39,7 @@ func newBTCTestNetSyncer() *BTCTestNetSyncer {
 // GetExtBalance ...
 func (btc *BTCTestNetSyncer) GetExtBalance() error {
 
-	btcAccount, ok := btc.Account.EBalances["BTC"]
+	btcAccount, ok := btc.Account.EBalances[symbol.BTC]
 	if !ok {
 		return errors.New("BTC account does not exists")
 	}
@@ -76,7 +77,7 @@ func (btc *BTCTestNetSyncer) GetExtBalance() error {
 // Update updates accounts in cache as and when external balances
 // external chains are updated.
 func (btc *BTCTestNetSyncer) Update() {
-	assetSymbol := "BTC"
+	assetSymbol := symbol.BTC
 	for _, btcAccount := range btc.Account.EBalances[assetSymbol] {
 		if btc.addressError[btcAccount.Address] {
 			log.Warn().Msgf("Account info is not available at this moment, skip sync: %s", btcAccount.Address)

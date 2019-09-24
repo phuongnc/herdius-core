@@ -10,6 +10,7 @@ import (
 
 	"github.com/herdius/herdius-core/p2p/log"
 	"github.com/herdius/herdius-core/storage/state/statedb"
+	"github.com/herdius/herdius-core/symbol"
 )
 
 // HBTCSyncer syncs all HBTC external accounts
@@ -21,7 +22,7 @@ type HBTCSyncer struct {
 }
 
 func newHBTCSyncer() *HBTCSyncer {
-	h := &HBTCSyncer{symbol: "HBTC", ethSymbol: "ETH"}
+	h := &HBTCSyncer{symbol: symbol.HBTC, ethSymbol: symbol.ETH}
 	h.syncer = newExternalSyncer(h.symbol)
 
 	return h

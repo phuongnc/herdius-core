@@ -6,6 +6,7 @@ import (
 
 	goTezos "github.com/DefinitelyNotAGoat/go-tezos"
 	"github.com/herdius/herdius-core/p2p/log"
+	"github.com/herdius/herdius-core/symbol"
 )
 
 // TezosSyncer syncs all XTZ external accounts
@@ -16,7 +17,7 @@ type TezosSyncer struct {
 
 func newTezosSyncer() *TezosSyncer {
 	t := &TezosSyncer{}
-	t.syncer = newExternalSyncer("XTZ")
+	t.syncer = newExternalSyncer(symbol.XTZ)
 
 	return t
 }

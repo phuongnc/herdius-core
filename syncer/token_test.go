@@ -8,6 +8,7 @@ import (
 	"github.com/herdius/herdius-core/storage/db"
 	external "github.com/herdius/herdius-core/storage/exbalance"
 	"github.com/herdius/herdius-core/storage/state/statedb"
+	"github.com/herdius/herdius-core/symbol"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -28,8 +29,8 @@ func TestHERShouldNOTChangeOtherASSET(t *testing.T) {
 	addr := "ETH-1"
 	storageKey := "ETH-" + addr
 	eBalances := make(map[string]map[string]statedb.EBalance)
-	eBalances["ETH"] = make(map[string]statedb.EBalance)
-	eBalances["ETH"][addr] = statedb.EBalance{Balance: uint64(1)}
+	eBalances[symbol.ETH] = make(map[string]statedb.EBalance)
+	eBalances[symbol.ETH][addr] = statedb.EBalance{Balance: uint64(1)}
 
 	account := statedb.Account{}
 	account.EBalances = eBalances
@@ -51,7 +52,7 @@ func TestHERShouldNOTChangeOtherASSET(t *testing.T) {
 	cachedAcc, ok = accountCache.Get(account.Address)
 	assert.Equal(t, ok, true, "cache should return account")
 
-	assert.Equal(t, cachedAcc.Account.EBalances["ETH"][addr].Balance, uint64(1), "Balance should not be updated with external balance")
+	assert.Equal(t, cachedAcc.Account.EBalances[symbol.ETH][addr].Balance, uint64(1), "Balance should not be updated with external balance")
 	assert.Equal(t, cachedAcc.LastExtBalance[storageKey], big.NewInt(9), "LastExtBalance should not be updated with external balance")
 	assert.Equal(t, cachedAcc.Account.Balance, big.NewInt(1).Uint64(), "Balance should not be updated with external balance")
 
@@ -68,8 +69,8 @@ func TestHERExternalETHisGreater(t *testing.T) {
 
 	addr := "ETH-1"
 	eBalances := make(map[string]map[string]statedb.EBalance)
-	eBalances["ETH"] = make(map[string]statedb.EBalance)
-	eBalances["ETH"][addr] = statedb.EBalance{Balance: uint64(8)}
+	eBalances[symbol.ETH] = make(map[string]statedb.EBalance)
+	eBalances[symbol.ETH][addr] = statedb.EBalance{Balance: uint64(8)}
 
 	account := statedb.Account{}
 	account.EBalances = eBalances
@@ -119,8 +120,8 @@ func TestHERExternalETHisLesser(t *testing.T) {
 
 	addr := "ETH-1"
 	eBalances := make(map[string]map[string]statedb.EBalance)
-	eBalances["ETH"] = make(map[string]statedb.EBalance)
-	eBalances["ETH"][addr] = statedb.EBalance{Balance: uint64(8)}
+	eBalances[symbol.ETH] = make(map[string]statedb.EBalance)
+	eBalances[symbol.ETH][addr] = statedb.EBalance{Balance: uint64(8)}
 
 	account := statedb.Account{}
 	account.EBalances = eBalances

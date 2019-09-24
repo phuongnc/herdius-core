@@ -8,6 +8,7 @@ import (
 	"github.com/herdius/herdius-core/storage/db"
 	external "github.com/herdius/herdius-core/storage/exbalance"
 	"github.com/herdius/herdius-core/storage/state/statedb"
+	"github.com/herdius/herdius-core/symbol"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,15 +23,15 @@ func TestInitHBTC(t *testing.T) {
 
 	addr := "ETH-1"
 	eBalances := make(map[string]map[string]statedb.EBalance)
-	eBalances["ETH"] = make(map[string]statedb.EBalance)
-	eBalances["ETH"][addr] = statedb.EBalance{Address: addr, Balance: uint64(0)}
-	eBalances["HBTC"] = make(map[string]statedb.EBalance)
-	eBalances["HBTC"][addr] = statedb.EBalance{Address: addr, Balance: uint64(0)}
+	eBalances[symbol.ETH] = make(map[string]statedb.EBalance)
+	eBalances[symbol.ETH][addr] = statedb.EBalance{Address: addr, Balance: uint64(0)}
+	eBalances[symbol.HBTC] = make(map[string]statedb.EBalance)
+	eBalances[symbol.HBTC][addr] = statedb.EBalance{Address: addr, Balance: uint64(0)}
 
 	account := statedb.Account{}
 	account.EBalances = eBalances
 	account.Address = "testEthAddress1"
-	account.FirstExternalAddress = map[string]string{"ETH": addr}
+	account.FirstExternalAddress = map[string]string{symbol.ETH: addr}
 
 	hs := newHBTCSyncer()
 	hs.syncer.Account = account
@@ -39,7 +40,7 @@ func TestInitHBTC(t *testing.T) {
 	hs.Update()
 	cachedAcc, ok := accountCache.Get(account.Address)
 	assert.Equal(t, ok, true, "cache should return account")
-	assert.Equal(t, hs.syncer.ExtBalance[addr].Uint64(), cachedAcc.Account.EBalances["HBTC"][addr].Balance, "HBTC Balance should be updated with external balance")
+	assert.Equal(t, hs.syncer.ExtBalance[addr].Uint64(), cachedAcc.Account.EBalances[symbol.HBTC][addr].Balance, "HBTC Balance should be updated with external balance")
 }
 
 func TestExternalHBTCisGreater(t *testing.T) {
@@ -53,15 +54,15 @@ func TestExternalHBTCisGreater(t *testing.T) {
 
 	addr := "ETH-1"
 	eBalances := make(map[string]map[string]statedb.EBalance)
-	eBalances["ETH"] = make(map[string]statedb.EBalance)
-	eBalances["ETH"][addr] = statedb.EBalance{Address: addr, Balance: uint64(8)}
-	eBalances["HBTC"] = make(map[string]statedb.EBalance)
-	eBalances["HBTC"][addr] = statedb.EBalance{Address: addr, Balance: uint64(8)}
+	eBalances[symbol.ETH] = make(map[string]statedb.EBalance)
+	eBalances[symbol.ETH][addr] = statedb.EBalance{Address: addr, Balance: uint64(8)}
+	eBalances[symbol.HBTC] = make(map[string]statedb.EBalance)
+	eBalances[symbol.HBTC][addr] = statedb.EBalance{Address: addr, Balance: uint64(8)}
 
 	account := statedb.Account{}
 	account.EBalances = eBalances
 	account.Address = "testEthAddress"
-	account.FirstExternalAddress = map[string]string{"ETH": addr}
+	account.FirstExternalAddress = map[string]string{symbol.ETH: addr}
 
 	hs := newHBTCSyncer()
 	hs.syncer.Account = account
@@ -76,7 +77,7 @@ func TestExternalHBTCisGreater(t *testing.T) {
 
 	cachedAcc, ok := accountCache.Get(account.Address)
 	assert.Equal(t, ok, true, "cache should return account")
-	assert.Equal(t, hs.syncer.ExtBalance[addr].Uint64(), cachedAcc.Account.EBalances["HBTC"][addr].Balance, "HBTC Balance should be updated")
+	assert.Equal(t, hs.syncer.ExtBalance[addr].Uint64(), cachedAcc.Account.EBalances[symbol.HBTC][addr].Balance, "HBTC Balance should be updated")
 }
 
 func TestExternalHBTCisLesser(t *testing.T) {
@@ -90,15 +91,15 @@ func TestExternalHBTCisLesser(t *testing.T) {
 
 	addr := "ETH-1"
 	eBalances := make(map[string]map[string]statedb.EBalance)
-	eBalances["ETH"] = make(map[string]statedb.EBalance)
-	eBalances["ETH"][addr] = statedb.EBalance{Address: addr, Balance: uint64(8)}
-	eBalances["HBTC"] = make(map[string]statedb.EBalance)
-	eBalances["HBTC"][addr] = statedb.EBalance{Address: addr, Balance: uint64(8)}
+	eBalances[symbol.ETH] = make(map[string]statedb.EBalance)
+	eBalances[symbol.ETH][addr] = statedb.EBalance{Address: addr, Balance: uint64(8)}
+	eBalances[symbol.HBTC] = make(map[string]statedb.EBalance)
+	eBalances[symbol.HBTC][addr] = statedb.EBalance{Address: addr, Balance: uint64(8)}
 
 	account := statedb.Account{}
 	account.EBalances = eBalances
 	account.Address = "testEthAddress"
-	account.FirstExternalAddress = map[string]string{"ETH": addr}
+	account.FirstExternalAddress = map[string]string{symbol.ETH: addr}
 
 	hs := newHBTCSyncer()
 	hs.syncer.Account = account
@@ -113,6 +114,6 @@ func TestExternalHBTCisLesser(t *testing.T) {
 
 	cachedAcc, ok := accountCache.Get(account.Address)
 	assert.Equal(t, ok, true, "cache should return account")
-	assert.Equal(t, hs.syncer.ExtBalance[addr].Uint64(), cachedAcc.Account.EBalances["HBTC"][addr].Balance, "HBTC Balance should be updated")
+	assert.Equal(t, hs.syncer.ExtBalance[addr].Uint64(), cachedAcc.Account.EBalances[symbol.HBTC][addr].Balance, "HBTC Balance should be updated")
 
 }

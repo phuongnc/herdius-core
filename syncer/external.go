@@ -7,6 +7,7 @@ import (
 	"github.com/herdius/herdius-core/p2p/log"
 	external "github.com/herdius/herdius-core/storage/exbalance"
 	"github.com/herdius/herdius-core/storage/state/statedb"
+	"github.com/herdius/herdius-core/symbol"
 )
 
 const (
@@ -40,7 +41,7 @@ func newExternalSyncer(assetSymbol string) *ExternalSyncer {
 }
 
 func (es *ExternalSyncer) isHBTC() bool {
-	return es.assetSymbol == "HBTC"
+	return es.assetSymbol == symbol.HBTC
 }
 
 func (es *ExternalSyncer) update(address string) {

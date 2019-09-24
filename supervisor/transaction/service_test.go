@@ -5,7 +5,8 @@ import (
 
 	ed25519 "github.com/herdius/herdius-core/crypto/ed"
 	"github.com/herdius/herdius-core/crypto/secp256k1"
-"github.com/herdius/herdius-core/supervisor/transaction"
+	"github.com/herdius/herdius-core/supervisor/transaction"
+	"github.com/herdius/herdius-core/symbol"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -75,7 +76,7 @@ func getTx(nonce int) transaction.Tx {
 		Nonce:    string(nonce),
 		Fee:      "100",
 		Category: "Crypto",
-		Symbol:   "BTC",
+		Symbol:   symbol.BTC,
 		Value:    "10",
 		Network:  "Herdius",
 	}
@@ -99,7 +100,7 @@ func getTxUsingSecp256k1Account(nonce int) transaction.Tx {
 		Nonce:    string(nonce),
 		Fee:      "100",
 		Category: "Crypto",
-		Symbol:   "BTC",
+		Symbol:   symbol.BTC,
 		Value:    "10",
 		Network:  "Herdius",
 	}
