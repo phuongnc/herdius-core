@@ -13,6 +13,7 @@ import (
 	"github.com/herdius/herdius-core/crypto/secp256k1"
 	pluginproto "github.com/herdius/herdius-core/hbi/protobuf"
 	"github.com/herdius/herdius-core/storage/db"
+	"github.com/herdius/herdius-core/symbol"
 
 	"github.com/herdius/herdius-core/crypto/herhash"
 	txbyte "github.com/herdius/herdius-core/tx"
@@ -48,12 +49,12 @@ func TestGetTxsByAddressAndAsset(t *testing.T) {
 	privKey := secp256k1.GenPrivKey()
 	addBlocks(privKey, t)
 	txSrv := TxService{}
-	txs, err := txSrv.GetTxsByAssetAndAddress("HER", privKey.PubKey().GetAddress())
+	txs, err := txSrv.GetTxsByAssetAndAddress(symbol.HER, privKey.PubKey().GetAddress())
 	require.Nil(t, err)
 
 	assert.Equal(t, 1, len(txs.GetTxs()), "Total HER transactions should be 1")
 
-	btcTxs, err := txSrv.GetTxsByAssetAndAddress("BTC", privKey.PubKey().GetAddress())
+	btcTxs, err := txSrv.GetTxsByAssetAndAddress(symbol.BTC, privKey.PubKey().GetAddress())
 	require.Nil(t, err)
 
 	assert.Equal(t, 0, len(btcTxs.GetTxs()), "Total BTC transactions should be 0")
@@ -141,7 +142,7 @@ func getTx(nonce int, privKey secp256k1.PrivKeySecp256k1) pluginproto.Tx {
 	pubKey := privKey.PubKey()
 	sign, _ := privKey.Sign(msg)
 	asset := &pluginproto.Asset{
-		Symbol: "HER",
+		Symbol: symbol.HER,
 	}
 	tx := pluginproto.Tx{
 		SenderAddress: pubKey.GetAddress(),

@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/herdius/herdius-core/p2p/log"
+	"github.com/herdius/herdius-core/symbol"
 )
 
 // BTCSyncer syncs all external BTC accounts.
@@ -19,7 +20,7 @@ type BTCSyncer struct {
 
 func newBTCSyncer() *BTCSyncer {
 	b := &BTCSyncer{}
-	b.syncer = newExternalSyncer("BTC")
+	b.syncer = newExternalSyncer(symbol.BTC)
 
 	return b
 }

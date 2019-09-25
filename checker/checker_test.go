@@ -7,6 +7,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/herdius/herdius-core/symbol"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -37,9 +38,9 @@ func TestBTCChecker(t *testing.T) {
 
 func TestCheckerNetwork(t *testing.T) {
 	n := New("dev")
-	require.True(t, n.Check("HER"))
+	require.True(t, n.Check(symbol.HER))
 
-	if !n.Check("BTC") {
+	if !n.Check(symbol.BTC) {
 		t.Log("Bitcoin network is down")
 	}
 

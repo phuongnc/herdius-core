@@ -10,6 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/herdius/herdius-core/p2p/log"
+	"github.com/herdius/herdius-core/symbol"
 	"github.com/herdius/herdius-core/syncer/contract"
 )
 
@@ -22,7 +23,7 @@ type DaiSyncer struct {
 
 func newDAISyncer() *DaiSyncer {
 	d := &DaiSyncer{}
-	d.syncer = newExternalSyncer("DAI")
+	d.syncer = newExternalSyncer(symbol.DAI)
 
 	return d
 }

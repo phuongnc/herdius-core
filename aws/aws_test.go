@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	gomock "github.com/golang/mock/gomock"
-		"github.com/stretchr/testify/assert"
-			"github.com/herdius/herdius-core/aws/aws_mocks"
+	"github.com/herdius/herdius-core/aws/aws_mocks"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestTryBackupBaseBlock(t *testing.T) {

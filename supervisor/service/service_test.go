@@ -8,25 +8,23 @@ import (
 	"os"
 	"testing"
 
-	"github.com/herdius/herdius-core/blockchain/protobuf"
-	"github.com/herdius/herdius-core/storage/db"
-	"github.com/herdius/herdius-core/storage/state/statedb"
-
-	ed25519 "github.com/herdius/herdius-core/crypto/ed"
-	pluginproto "github.com/herdius/herdius-core/hbi/protobuf"
-
-	"github.com/herdius/herdius-core/crypto/secp256k1"
-	"github.com/herdius/herdius-core/supervisor/transaction"
-
-	external "github.com/herdius/herdius-core/storage/exbalance"
-
-	txbyte "github.com/herdius/herdius-core/tx"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/herdius/herdius-core/blockchain/protobuf"
+	ed25519 "github.com/herdius/herdius-core/crypto/ed"
+	"github.com/herdius/herdius-core/crypto/secp256k1"
+	pluginproto "github.com/herdius/herdius-core/hbi/protobuf"
+	"github.com/herdius/herdius-core/storage/db"
+	external "github.com/herdius/herdius-core/storage/exbalance"
+	"github.com/herdius/herdius-core/storage/state/statedb"
+	"github.com/herdius/herdius-core/supervisor/transaction"
+	aSymbol "github.com/herdius/herdius-core/symbol"
+	txbyte "github.com/herdius/herdius-core/tx"
 )
 
 func TestRegisterNewHERAddress(t *testing.T) {
 	asset := &pluginproto.Asset{
-		Symbol: "HER",
+		Symbol: aSymbol.HER,
 	}
 	tx := &pluginproto.Tx{
 		SenderAddress: "HHy1CuT3UxCGJ3BHydLEvR5ut6HRy2qUvm",
@@ -40,7 +38,7 @@ func TestRegisterNewHERAddress(t *testing.T) {
 
 func TestUpdateHERAccountBalance(t *testing.T) {
 	asset := &pluginproto.Asset{
-		Symbol: "HER",
+		Symbol: aSymbol.HER,
 	}
 	tx := &pluginproto.Tx{
 		SenderAddress: "HHy1CuT3UxCGJ3BHydLEvR5ut6HRy2qUvm",
@@ -54,7 +52,7 @@ func TestUpdateHERAccountBalance(t *testing.T) {
 
 	// Update 10 HER tokens to existing HER Account
 	asset = &pluginproto.Asset{
-		Symbol: "HER",
+		Symbol: aSymbol.HER,
 		Value:  10,
 		Nonce:  2,
 	}
@@ -70,7 +68,7 @@ func TestUpdateHERAccountBalance(t *testing.T) {
 }
 
 func TestRegisterNewETHAddress(t *testing.T) {
-	symbol := "ETH"
+	symbol := aSymbol.ETH
 	extSenderAddress := "0xD8f647855876549d2623f52126CE40D053a2ef6A"
 	asset := &pluginproto.Asset{
 		Symbol:                symbol,
@@ -94,7 +92,7 @@ func TestRegisterNewETHAddress(t *testing.T) {
 }
 
 func TestRegisterMultipleExternalAssets(t *testing.T) {
-	symbol := "ETH"
+	symbol := aSymbol.ETH
 	extSenderAddress := " 0xD8f647855876549d2623f52126CE40D053a2ef6A"
 	// First add ETH
 	asset := &pluginproto.Asset{
@@ -118,7 +116,7 @@ func TestRegisterMultipleExternalAssets(t *testing.T) {
 	assert.Equal(t, tx.Asset.ExternalSenderAddress, account.EBalances[symbol][extSenderAddress].Address)
 	assert.Equal(t, extSenderAddress, account.FirstExternalAddress[symbol])
 
-	newSymbol := "BTC"
+	newSymbol := aSymbol.BTC
 	newExtSenderAddress := "Bitcoin-Address"
 	// Second add BTC
 	asset = &pluginproto.Asset{
@@ -140,7 +138,7 @@ func TestRegisterMultipleExternalAssets(t *testing.T) {
 	assert.Equal(t, newExtSenderAddress, account.FirstExternalAddress[newSymbol])
 
 	// Tezos support
-	newXTZSymbol := "XTZ"
+	newXTZSymbol := aSymbol.XTZ
 	newTezosExtSenderAddress := "Tezos-Address"
 	// Third add XTZ
 	asset = &pluginproto.Asset{
@@ -163,7 +161,7 @@ func TestRegisterMultipleExternalAssets(t *testing.T) {
 }
 
 func TestUpdateExternalAccountBalance(t *testing.T) {
-	symbol := "ETH"
+	symbol := aSymbol.ETH
 	extSenderAddress := "0xD8f647855876549d2623f52126CE40D053a2ef6A"
 	asset := &pluginproto.Asset{
 		Symbol:                symbol,
@@ -211,13 +209,13 @@ func TestIsExternalAssetAddressExistTrue(t *testing.T) {
 	addr := "0xD8f647855876549d2623f52126CE40D053a2ef6A"
 	eBal := statedb.EBalance{Address: addr}
 	eBals := make(map[string]map[string]statedb.EBalance)
-	eBals["ETH"] = make(map[string]statedb.EBalance)
-	eBals["ETH"][addr] = eBal
+	eBals[aSymbol.ETH] = make(map[string]statedb.EBalance)
+	eBals[aSymbol.ETH][addr] = eBal
 	account := &statedb.Account{
 		Address:   "HHy1CuT3UxCGJ3BHydLEvR5ut6HRy2qUvm",
 		EBalances: eBals,
 	}
-	assert.True(t, isExternalAssetAddressExist(account, "ETH", addr))
+	assert.True(t, isExternalAssetAddressExist(account, aSymbol.ETH, addr))
 }
 func TestIsExternalAssetAddressExistFalse(t *testing.T) {
 	addr := "0xD8f647855876549d2623f52126CE40D053a2ef6A"
@@ -226,35 +224,35 @@ func TestIsExternalAssetAddressExistFalse(t *testing.T) {
 		Address:   "HHy1CuT3UxCGJ3BHydLEvR5ut6HRy2qUvm",
 		EBalances: eBals,
 	}
-	assert.False(t, isExternalAssetAddressExist(account, "ETH", addr))
+	assert.False(t, isExternalAssetAddressExist(account, aSymbol.ETH, addr))
 }
 
 func TestExternalAssetWithdrawFromAnAccount(t *testing.T) {
 	addr := "0xD8f647855876549d2623f52126CE40D053a2ef6A"
 	eBal := statedb.EBalance{Balance: 10, Address: addr}
 	eBals := make(map[string]map[string]statedb.EBalance)
-	eBals["ETH"] = make(map[string]statedb.EBalance)
-	eBals["ETH"][addr] = eBal
+	eBals[aSymbol.ETH] = make(map[string]statedb.EBalance)
+	eBals[aSymbol.ETH][addr] = eBal
 	account := &statedb.Account{
 		Address:   "HHy1CuT3UxCGJ3BHydLEvR5ut6HRy2qUvm",
 		EBalances: eBals,
 	}
-	withdraw(account, "ETH", addr, 5)
-	assert.Equal(t, uint64(5), account.EBalances["ETH"][addr].Balance)
+	withdraw(account, aSymbol.ETH, addr, 5)
+	assert.Equal(t, uint64(5), account.EBalances[aSymbol.ETH][addr].Balance)
 }
 
 func TestExternalAssetDepositToAnAccount(t *testing.T) {
 	addr := "0xD8f647855876549d2623f52126CE40D053a2ef6A"
 	eBal := statedb.EBalance{Balance: 10, Address: addr}
 	eBals := make(map[string]map[string]statedb.EBalance)
-	eBals["ETH"] = make(map[string]statedb.EBalance)
-	eBals["ETH"][addr] = eBal
+	eBals[aSymbol.ETH] = make(map[string]statedb.EBalance)
+	eBals[aSymbol.ETH][addr] = eBal
 	account := &statedb.Account{
 		Address:   "HHy1CuT3UxCGJ3BHydLEvR5ut6HRy2qUvm",
 		EBalances: eBals,
 	}
-	deposit(account, "ETH", addr, 5)
-	assert.Equal(t, uint64(15), account.EBalances["ETH"][addr].Balance)
+	deposit(account, aSymbol.ETH, addr, 5)
+	assert.Equal(t, uint64(15), account.EBalances[aSymbol.ETH][addr].Balance)
 }
 
 func TestRemoveValidator(t *testing.T) {
@@ -306,7 +304,7 @@ func getTx(nonce int) transaction.Tx {
 		Nonce:    string(nonce),
 		Fee:      "100",
 		Category: "Crypto",
-		Symbol:   "BTC",
+		Symbol:   aSymbol.BTC,
 		Value:    "10",
 		Network:  "Herdius",
 	}
@@ -347,7 +345,7 @@ func getTxSecp256k1Account(nonce int) transaction.Tx {
 		Nonce:    string(nonce),
 		Fee:      "100",
 		Category: "Crypto",
-		Symbol:   "BTC",
+		Symbol:   aSymbol.BTC,
 		Value:    "10",
 		Network:  "Herdius",
 	}
@@ -453,7 +451,7 @@ func TestUpdateStateWithNewExternalBalance(t *testing.T) {
 }
 
 func TestUpdateAccountLockedBalance(t *testing.T) {
-	symbol := "ETH"
+	symbol := aSymbol.ETH
 	lockedAmount := uint64(10)
 	extSenderAddress := "0xD8f647855876549d2623f52126CE40D053a2ef6A"
 	asset := &pluginproto.Asset{
@@ -488,7 +486,7 @@ func TestUpdateAccountLockedBalance(t *testing.T) {
 	assert.Equal(t, lockedAmount, account.LockedBalance[symbol][extSenderAddress])
 }
 func TestUpdateAccountLockedBalanceMintHBTCFirst(t *testing.T) {
-	symbol := "BTC"
+	symbol := aSymbol.BTC
 	lockedAmount := uint64(10)
 	extSenderAddress := "0xD8f647855876549d2623f52126CE40D053a2ef6A"
 	asset := &pluginproto.Asset{
@@ -520,15 +518,15 @@ func TestUpdateAccountLockedBalanceMintHBTCFirst(t *testing.T) {
 		FirstExternalAddress: make(map[string]string),
 		EBalances:            eBalances,
 	}
-	account.FirstExternalAddress["ETH"] = "0xD8f647855876549d2623f52126CE40D053a2ef6A"
+	account.FirstExternalAddress[aSymbol.ETH] = "0xD8f647855876549d2623f52126CE40D053a2ef6A"
 	account = updateAccountLockedBalance(account, tx)
 	assert.Equal(t, lockedAmount, account.LockedBalance[symbol][extSenderAddress])
-	assert.Equal(t, uint64(0), account.EBalances["HBTC"]["0xD8f647855876549d2623f52126CE40D053a2ef6A"].Balance)
+	assert.Equal(t, uint64(0), account.EBalances[aSymbol.HBTC]["0xD8f647855876549d2623f52126CE40D053a2ef6A"].Balance)
 
 }
 
 func TestUpdateRedeemAccountLockedBalance(t *testing.T) {
-	symbol := "BTC"
+	symbol := aSymbol.BTC
 	lockedAmount := uint64(10)
 	extSenderAddress := "0xD8f647855876549d2623f52126CE40D053a2ef6A"
 	asset := &pluginproto.Asset{
@@ -555,14 +553,14 @@ func TestUpdateRedeemAccountLockedBalance(t *testing.T) {
 	eBalances[symbol][extAddr] = eBalance
 	account := &statedb.Account{
 		Address:              "HHy1CuT3UxCGJ3BHydLEvR5ut6HRy2qUvm",
-		FirstExternalAddress: map[string]string{"ETH": extAddr},
+		FirstExternalAddress: map[string]string{aSymbol.ETH: extAddr},
 		EBalances:            eBalances,
 	}
 	account = updateAccountLockedBalance(account, tx)
 	assert.Equal(t, lockedAmount, account.LockedBalance[symbol][extSenderAddress])
 
 	// Redeem test
-	symbol = "HBTC"
+	symbol = aSymbol.HBTC
 	value := uint64(5)
 	extSenderAddress = "0xD8f647855876549d2623f52126CE40D053a2ef6A"
 	asset = &pluginproto.Asset{
@@ -579,8 +577,8 @@ func TestUpdateRedeemAccountLockedBalance(t *testing.T) {
 	}
 
 	account = updateRedeemAccountLockedBalance(account, tx)
-	assert.Equal(t, value, account.LockedBalance["BTC"][extSenderAddress])
-	assert.Equal(t, value, account.EBalances["BTC"][extSenderAddress].Balance)
+	assert.Equal(t, value, account.LockedBalance[aSymbol.BTC][extSenderAddress])
+	assert.Equal(t, value, account.EBalances[aSymbol.BTC][extSenderAddress].Balance)
 }
 
 func TestValidatorGroups(t *testing.T) {

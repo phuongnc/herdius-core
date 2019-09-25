@@ -13,6 +13,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/herdius/herdius-core/config"
+	"github.com/herdius/herdius-core/symbol"
 )
 
 // Checker checks availability of asset network
@@ -25,12 +26,12 @@ func New(env string) *Network {
 	c := config.GetConfiguration(env)
 	n := &Network{}
 	n.checker = make(map[string]Checker)
-	n.checker["BTC"] = &BTC{c.CheckerBtcURL}
-	n.checker["HER"] = &HER{}
-	n.checker["ETH"] = &ETH{c.EthRPCURL}
-	n.checker["HBTC"] = &ETH{c.EthRPCURL}
-	n.checker["HTZX"] = &ETH{c.EthRPCURL}
-	n.checker["HLTC"] = &ETH{c.EthRPCURL}
+	n.checker[symbol.BTC] = &BTC{c.CheckerBtcURL}
+	n.checker[symbol.HER] = &HER{}
+	n.checker[symbol.ETH] = &ETH{c.EthRPCURL}
+	n.checker[symbol.HBTC] = &ETH{c.EthRPCURL}
+	n.checker[symbol.HTZX] = &ETH{c.EthRPCURL}
+	n.checker[symbol.HLTC] = &ETH{c.EthRPCURL}
 	return n
 }
 

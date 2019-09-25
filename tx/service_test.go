@@ -12,6 +12,7 @@ import (
 	cmn "github.com/herdius/herdius-core/libs/common"
 	. "github.com/herdius/herdius-core/libs/test"
 	"github.com/herdius/herdius-core/supervisor/transaction"
+	"github.com/herdius/herdius-core/symbol"
 )
 
 var service Service
@@ -138,7 +139,7 @@ func getTx(nonce int) transaction.Tx {
 		Nonce:    string(nonce),
 		Fee:      "100",
 		Category: "Crypto",
-		Symbol:   "BTC",
+		Symbol:   symbol.BTC,
 		Value:    "10",
 		Network:  "Herdius",
 	}

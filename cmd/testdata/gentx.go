@@ -11,6 +11,7 @@ import (
 
 	"github.com/herdius/herdius-core/p2p/key"
 	"github.com/herdius/herdius-core/supervisor/transaction"
+	"github.com/herdius/herdius-core/symbol"
 )
 
 func main() {
@@ -43,7 +44,7 @@ func createTxs() {
 				Senderpubkey:  pubKey.Bytes(),
 				Fee:           []byte("0"),
 				Assetcategory: "Crypto",
-				Assetname:     "BTC",
+				Assetname:     symbol.BTC,
 				Value:         []byte("10"),
 				Signature:     sign,
 				Message:       "Transfer 10 BTC",

@@ -8,6 +8,7 @@ import (
 	acc "github.com/herdius/herdius-core/accounts/protobuf"
 	"github.com/herdius/herdius-core/hbi/protobuf"
 	"github.com/herdius/herdius-core/libs/common"
+	"github.com/herdius/herdius-core/symbol"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -70,7 +71,7 @@ func TestProcessQueueGap(t *testing.T) {
 func NewTx(i uint64, address string) (protobuf.Tx, string) {
 	asset := &protobuf.Asset{
 		Category: "crypto",
-		Symbol:   "HER",
+		Symbol:   symbol.HER,
 		Network:  "Herdius",
 		Value:    100,
 		Fee:      1,

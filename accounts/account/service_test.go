@@ -7,6 +7,7 @@ import (
 
 	"github.com/herdius/herdius-core/accounts/protobuf"
 	"github.com/herdius/herdius-core/crypto/secp256k1"
+	aSymbol "github.com/herdius/herdius-core/symbol"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,7 +16,7 @@ func TestVerifyAccountBalanceTrue(t *testing.T) {
 	account := &protobuf.Account{Balance: 10}
 	accService.SetAccount(account)
 	accService.SetTxValue(5)
-	accService.SetAssetSymbol("HER")
+	accService.SetAssetSymbol(aSymbol.HER)
 	assert.True(t, accService.VerifyAccountBalance())
 }
 
@@ -24,7 +25,7 @@ func TestVerifyAccountBalanceFalse(t *testing.T) {
 	accService := NewAccountService()
 	accService.SetAccount(account)
 	accService.SetTxValue(5)
-	accService.SetAssetSymbol("HER")
+	accService.SetAssetSymbol(aSymbol.HER)
 	assert.False(t, accService.VerifyAccountBalance())
 }
 
@@ -34,15 +35,15 @@ func TestVerifyExternalAssetBalanceTrue(t *testing.T) {
 		Balance: 10,
 	}
 	eBalances := make(map[string]*protobuf.EBalanceAsset)
-	eBalances["ETH"] = &protobuf.EBalanceAsset{}
-	eBalances["ETH"].Asset = make(map[string]*protobuf.EBalance)
-	eBalances["ETH"].Asset[eBalance.Address] = eBalance
+	eBalances[aSymbol.ETH] = &protobuf.EBalanceAsset{}
+	eBalances[aSymbol.ETH].Asset = make(map[string]*protobuf.EBalance)
+	eBalances[aSymbol.ETH].Asset[eBalance.Address] = eBalance
 	account := &protobuf.Account{Balance: 10, EBalances: eBalances}
 	accService := NewAccountService()
 	accService.SetAccount(account)
 	accService.SetExtAddress("0xD8f647855876549d2623f52126CE40D053a2ef6A")
 	accService.SetTxValue(1)
-	accService.SetAssetSymbol("ETH")
+	accService.SetAssetSymbol(aSymbol.ETH)
 	assert.True(t, accService.VerifyAccountBalance())
 }
 
@@ -52,15 +53,15 @@ func TestVerifyExternalAssetBalanceFalse(t *testing.T) {
 		Balance: 1,
 	}
 	eBalances := make(map[string]*protobuf.EBalanceAsset)
-	eBalances["ETH"] = &protobuf.EBalanceAsset{}
-	eBalances["ETH"].Asset = make(map[string]*protobuf.EBalance)
-	eBalances["ETH"].Asset[eBalance.Address] = eBalance
+	eBalances[aSymbol.ETH] = &protobuf.EBalanceAsset{}
+	eBalances[aSymbol.ETH].Asset = make(map[string]*protobuf.EBalance)
+	eBalances[aSymbol.ETH].Asset[eBalance.Address] = eBalance
 	account := &protobuf.Account{Balance: 1, EBalances: eBalances}
 	accService := NewAccountService()
 	accService.SetAccount(account)
 	accService.SetExtAddress("0xD8f647855876549d2623f52126CE40D053a2ef6A")
 	accService.SetTxValue(2)
-	accService.SetAssetSymbol("ETH")
+	accService.SetAssetSymbol(aSymbol.ETH)
 	assert.False(t, accService.VerifyAccountBalance())
 }
 
@@ -120,9 +121,9 @@ func TestAccountExternalAddressExistFalse(t *testing.T) {
 		Balance: 1,
 	}
 	eBalances := make(map[string]*protobuf.EBalanceAsset)
-	eBalances["ETH"] = &protobuf.EBalanceAsset{}
-	eBalances["ETH"].Asset = make(map[string]*protobuf.EBalance)
-	eBalances["ETH"].Asset[eBalance.Address] = eBalance
+	eBalances[aSymbol.ETH] = &protobuf.EBalanceAsset{}
+	eBalances[aSymbol.ETH].Asset = make(map[string]*protobuf.EBalance)
+	eBalances[aSymbol.ETH].Asset[eBalance.Address] = eBalance
 	account := &protobuf.Account{Balance: 1, EBalances: eBalances}
 	accService.SetAccount(account)
 	accService.SetExtAddress("0xD8f647855876549d2623f52126CE40D053a2ef6A-WrongOne")
@@ -135,9 +136,9 @@ func TestAccountExternalAddressExistTrue(t *testing.T) {
 		Balance: 1,
 	}
 	eBalances := make(map[string]*protobuf.EBalanceAsset)
-	eBalances["ETH"] = &protobuf.EBalanceAsset{}
-	eBalances["ETH"].Asset = make(map[string]*protobuf.EBalance)
-	eBalances["ETH"].Asset[eBalance.Address] = eBalance
+	eBalances[aSymbol.ETH] = &protobuf.EBalanceAsset{}
+	eBalances[aSymbol.ETH].Asset = make(map[string]*protobuf.EBalance)
+	eBalances[aSymbol.ETH].Asset[eBalance.Address] = eBalance
 	account := &protobuf.Account{Balance: 1, EBalances: eBalances}
 	accService.SetAccount(account)
 	accService.SetExtAddress("0xD8f647855876549d2623f52126CE40D053a2ef6A")
@@ -146,24 +147,24 @@ func TestAccountExternalAddressExistTrue(t *testing.T) {
 
 func TestVerifyAccountEBalancesLimit(t *testing.T) {
 	eBalances := make(map[string]*protobuf.EBalanceAsset)
-	eBalances["ETH"] = &protobuf.EBalanceAsset{}
-	eBalances["ETH"].Asset = make(map[string]*protobuf.EBalance)
+	eBalances[aSymbol.ETH] = &protobuf.EBalanceAsset{}
+	eBalances[aSymbol.ETH].Asset = make(map[string]*protobuf.EBalance)
 	for i := 0; i < 1023; i++ {
 		address := fmt.Sprintf("%d", i)
-		eBalances["ETH"].Asset[address] = &protobuf.EBalance{Address: address}
+		eBalances[aSymbol.ETH].Asset[address] = &protobuf.EBalance{Address: address}
 	}
 	account := &protobuf.Account{Balance: 1, EBalances: eBalances}
 	accService := NewAccountService()
 	accService.SetAccount(account)
-	accService.SetAssetSymbol("ETH")
+	accService.SetAssetSymbol(aSymbol.ETH)
 	assert.False(t, accService.AccountEBalancePerAssetReachLimit())
-	eBalances["ETH"].Asset["1024"] = nil
+	eBalances[aSymbol.ETH].Asset["1024"] = nil
 	assert.True(t, accService.AccountEBalancePerAssetReachLimit())
 }
 
 func TestVerifyLockedAmount(t *testing.T) {
 	accService := NewAccountService()
-	symbol := "ETH"
+	symbol := aSymbol.ETH
 	extAddr := "0xD8f647855876549d2623f52126CE40D053a2ef6A"
 	eBalance := &protobuf.EBalance{
 		Address: extAddr,
@@ -185,7 +186,7 @@ func TestVerifyLockedAmount(t *testing.T) {
 
 func TestVerifyAccountBalanceWithLockAmount(t *testing.T) {
 	accService := NewAccountService()
-	symbol := "ETH"
+	symbol := aSymbol.ETH
 	extAddr := "0xD8f647855876549d2623f52126CE40D053a2ef6A"
 	eBalance := &protobuf.EBalance{
 		Address: extAddr,
@@ -215,7 +216,7 @@ func TestVerifyAccountBalanceWithLockAmount(t *testing.T) {
 
 func TestVerifyBTCRedeemAmount(t *testing.T) {
 	accService := NewAccountService()
-	symbol := "BTC"
+	symbol := aSymbol.BTC
 	extAddr := "0xD8f647855876549d2623f52126CE40D053a2ef6A"
 	lockBalances := make(map[string]*protobuf.LockBalanceAsset)
 	lockBalances[symbol] = &protobuf.LockBalanceAsset{}
@@ -224,7 +225,7 @@ func TestVerifyBTCRedeemAmount(t *testing.T) {
 
 	account := &protobuf.Account{Balance: 1, LockBalances: lockBalances}
 	accService.SetAccount(account)
-	accService.SetAssetSymbol("HBTC")
+	accService.SetAssetSymbol(aSymbol.HBTC)
 	accService.SetTxRedeemAmount(1)
 	accService.SetExtAddress(extAddr)
 	assert.True(t, accService.VerifyRedeemAmount())
@@ -239,17 +240,17 @@ func TestAccountExternalAddressExistForRedeemTrue(t *testing.T) {
 		Balance: 1,
 	}
 	eBalances := make(map[string]*protobuf.EBalanceAsset)
-	eBalances["ETH"] = &protobuf.EBalanceAsset{}
-	eBalances["HBTC"] = &protobuf.EBalanceAsset{}
-	eBalances["ETH"].Asset = make(map[string]*protobuf.EBalance)
-	eBalances["HBTC"].Asset = make(map[string]*protobuf.EBalance)
-	eBalances["ETH"].Asset[eBalance.Address] = eBalance
-	eBalances["HBTC"].Asset[eBalance.Address] = eBalance
+	eBalances[aSymbol.ETH] = &protobuf.EBalanceAsset{}
+	eBalances[aSymbol.HBTC] = &protobuf.EBalanceAsset{}
+	eBalances[aSymbol.ETH].Asset = make(map[string]*protobuf.EBalance)
+	eBalances[aSymbol.HBTC].Asset = make(map[string]*protobuf.EBalance)
+	eBalances[aSymbol.ETH].Asset[eBalance.Address] = eBalance
+	eBalances[aSymbol.HBTC].Asset[eBalance.Address] = eBalance
 	firstExternalAddress := make(map[string]string)
-	firstExternalAddress["ETH"] = "0xD8f647855876549d2623f52126CE40D053a2ef6A"
+	firstExternalAddress[aSymbol.ETH] = "0xD8f647855876549d2623f52126CE40D053a2ef6A"
 	account := &protobuf.Account{Balance: 1, EBalances: eBalances, FirstExternalAddress: firstExternalAddress}
 	accService.SetAccount(account)
-	accService.SetAssetSymbol("HBTC")
+	accService.SetAssetSymbol(aSymbol.HBTC)
 	accService.SetTxType("Redeem")
 	accService.SetExtAddress("0xD8f647855876549d2623f52126CE40D053a2ef6A")
 	assert.True(t, accService.AccountExternalAddressExist())
@@ -262,17 +263,17 @@ func TestAccountExternalAddressExistForRedeemFalse(t *testing.T) {
 		Balance: 1,
 	}
 	eBalances := make(map[string]*protobuf.EBalanceAsset)
-	eBalances["ETH"] = &protobuf.EBalanceAsset{}
-	eBalances["HBTC"] = &protobuf.EBalanceAsset{}
-	eBalances["ETH"].Asset = make(map[string]*protobuf.EBalance)
-	eBalances["HBTC"].Asset = make(map[string]*protobuf.EBalance)
-	eBalances["ETH"].Asset[eBalance.Address] = eBalance
-	eBalances["HBTC"].Asset[eBalance.Address] = eBalance
+	eBalances[aSymbol.ETH] = &protobuf.EBalanceAsset{}
+	eBalances[aSymbol.HBTC] = &protobuf.EBalanceAsset{}
+	eBalances[aSymbol.ETH].Asset = make(map[string]*protobuf.EBalance)
+	eBalances[aSymbol.HBTC].Asset = make(map[string]*protobuf.EBalance)
+	eBalances[aSymbol.ETH].Asset[eBalance.Address] = eBalance
+	eBalances[aSymbol.HBTC].Asset[eBalance.Address] = eBalance
 	firstExternalAddress := make(map[string]string)
-	firstExternalAddress["ETH"] = "0xD8f647855876549d2623f52126CE40D053a2ef6A-Another-Address"
+	firstExternalAddress[aSymbol.ETH] = "0xD8f647855876549d2623f52126CE40D053a2ef6A-Another-Address"
 	account := &protobuf.Account{Balance: 1, EBalances: eBalances, FirstExternalAddress: firstExternalAddress}
 	accService.SetAccount(account)
-	accService.SetAssetSymbol("HBTC")
+	accService.SetAssetSymbol(aSymbol.HBTC)
 	accService.SetTxType("Redeem")
 	accService.SetExtAddress("n2WH6nSNx7ZEwpR5rfCuvbEXX43am3TcNY")
 	assert.False(t, accService.AccountExternalAddressExist())

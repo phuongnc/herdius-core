@@ -8,6 +8,7 @@ import (
 	"github.com/herdius/herdius-core/storage/db"
 	external "github.com/herdius/herdius-core/storage/exbalance"
 	"github.com/herdius/herdius-core/storage/state/statedb"
+	"github.com/herdius/herdius-core/symbol"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,8 +23,8 @@ func TestNoResponseFromAPI(t *testing.T) {
 
 	addr := "BTC-1"
 	eBalances := make(map[string]map[string]statedb.EBalance)
-	eBalances["BTC"] = make(map[string]statedb.EBalance)
-	eBalances["BTC"][addr] = statedb.EBalance{Address: addr, Balance: uint64(8)}
+	eBalances[symbol.BTC] = make(map[string]statedb.EBalance)
+	eBalances[symbol.BTC][addr] = statedb.EBalance{Address: addr, Balance: uint64(8)}
 
 	account := statedb.Account{}
 	account.EBalances = eBalances

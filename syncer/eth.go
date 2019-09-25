@@ -8,6 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/herdius/herdius-core/p2p/log"
+	"github.com/herdius/herdius-core/symbol"
 	"github.com/tendermint/go-amino"
 )
 
@@ -21,7 +22,7 @@ type EthSyncer struct {
 
 func newEthSyncer() *EthSyncer {
 	e := &EthSyncer{}
-	e.syncer = newExternalSyncer("ETH")
+	e.syncer = newExternalSyncer(symbol.ETH)
 
 	return e
 }
