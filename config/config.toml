@@ -16,7 +16,7 @@ s3backupbucket = "herdius-blockchain-backup-dev"
 hbtcrpc = "http://100.26.41.2:81/contract/hbtc"
 tezosrpc = "http://172.105.158.208:9000"
 checkerbtcurl = "https://blockchain.info/latestblock"
-ltcrpc = "LTC_RPC_URL"
+ltcrpc = "https://block.io/api/v2"
 
 [staging]
 selfbroadcastip = "10.0.1.159"
@@ -36,7 +36,7 @@ s3backupbucket = "herdius-blockchain-backup-staging"
 hbtcrpc = "http://100.26.41.2:81/contract/hbtc"
 tezosrpc = "http://172.105.158.208:9000"
 checkerbtcurl = "https://blockchain.info/latestblock"
-ltcrpc = "LTC_RPC_URL"
+ltcrpc = "https://block.io/api/v2"
 
 [prod]
 selfbroadcastip = "not supported"
@@ -54,4 +54,4 @@ s3backupbucket = "herdius-blockchain-backup-prod"
 hbtcrpc = "http://100.26.41.2:81/contract/hbtc"
 tezosrpc = "http://172.105.158.208:9000"
 checkerbtcurl = "https://blockchain.info/latestblock"
-ltcrpc = "LTC_RPC_URL"
+ltcrpc = "https://block.io/api/v2"

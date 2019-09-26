@@ -140,7 +140,6 @@ func (btc *BTCSyncer) GetExtBalance() error {
 		btc.syncer.addressError[ba.Address] = true
 	}
 	return nil
-
 }
 
 // Update updates accounts in cache as and when external balances
