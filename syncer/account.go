@@ -16,13 +16,14 @@ import (
 )
 
 type apiEndponts struct {
-	btcRPC          string
-	ethRPC          string
-	herTokenAddress string
-	daiTokenAddress string
-
+	btcRPC   string
+	ethRPC   string
 	hbtcRPC  string
 	tezosRPC string
+	ltcRPC   string
+
+	herTokenAddress string
+	daiTokenAddress string
 }
 
 // DoSyncAllAccounts syncs all assets of available accounts.
@@ -42,6 +43,7 @@ func DoSyncAllAccounts(exBal external.BalanceStorage, env string, stopCh chan st
 	rpc.btcRPC = viper.GetString(env + ".blockchaininforpc")
 	rpc.hbtcRPC = viper.GetString(env + ".hbtcrpc")
 	rpc.tezosRPC = viper.GetString(env + ".tezosrpc")
+	rpc.ltcRPC = viper.GetString(env + ".ltcrpc")
 
 	if strings.Index(rpc.ethRPC, ".infura.io") > -1 {
 		rpc.ethRPC += os.Getenv("INFURAID")
@@ -158,6 +160,13 @@ func sync(exBal external.BalanceStorage, rpc apiEndponts) {
 		daiSyncer.syncer.Account = senderAccount
 		daiSyncer.syncer.Storage = exBal
 		syncers = append(syncers, daiSyncer)
+
+		// LTC syncer
+		ltcSyncer := newLTCSyncer()
+		ltcSyncer.RPC = rpc.ltcRPC
+		ltcSyncer.syncer.Account = senderAccount
+		ltcSyncer.syncer.Storage = exBal
+		syncers = append(syncers, ltcSyncer)
 
 		wg.Add(1)
 		go func() {
