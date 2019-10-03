@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/herdius/herdius-core/p2p/log"
+	"github.com/herdius/herdius-core/symbol"
 )
 
 const mutez = 100000000
@@ -20,7 +21,7 @@ type LTCSyncer struct {
 
 func newLTCSyncer() *LTCSyncer {
 	t := &LTCSyncer{}
-	t.syncer = newExternalSyncer("LTC")
+	t.syncer = newExternalSyncer(symbol.LTC)
 
 	return t
 }

@@ -17,6 +17,7 @@ hbtcrpc = "http://100.26.41.2:81/contract/hbtc"
 tezosrpc = "http://172.105.158.208:9000"
 checkerbtcurl = "https://blockchain.info/latestblock"
 ltcrpc = "https://block.io/api/v2"
+bnbrpc = "https://testnet-dex.binance.org/api/v1/account"
 
 [staging]
 selfbroadcastip = "10.0.1.159"
@@ -37,6 +38,7 @@ hbtcrpc = "http://100.26.41.2:81/contract/hbtc"
 tezosrpc = "http://172.105.158.208:9000"
 checkerbtcurl = "https://blockchain.info/latestblock"
 ltcrpc = "https://block.io/api/v2"
+bnbrpc = "https://testnet-dex.binance.org/api/v1/account"
 
 [prod]
 selfbroadcastip = "not supported"
@@ -55,3 +57,4 @@ hbtcrpc = "http://100.26.41.2:81/contract/hbtc"
 tezosrpc = "http://172.105.158.208:9000"
 checkerbtcurl = "https://blockchain.info/latestblock"
 ltcrpc = "https://block.io/api/v2"
+bnbrpc = "https://testnet-dex.binance.org/api/v1/account"
