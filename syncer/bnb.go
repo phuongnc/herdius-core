@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/herdius/herdius-core/p2p/log"
+	"github.com/herdius/herdius-core/symbol"
 )
 
 // BNBSyncer syncs all BNB external accounts
@@ -17,7 +18,7 @@ type BNBSyncer struct {
 
 func newBNBSyncer() *BNBSyncer {
 	t := &BNBSyncer{}
-	t.syncer = newExternalSyncer("BNB")
+	t.syncer = newExternalSyncer(symbol.BNB)
 
 	return t
 }

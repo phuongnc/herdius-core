@@ -7,8 +7,10 @@ const (
 	XTZ = "XTZ"
 	DAI = "DAI"
 	LTC = "LTC"
+	BNB = "BNB"
 
 	HBTC = "HBTC"
 	HTZX = "HTZX"
 	HLTC = "HLTC"
+	HBNB = "HBNB"
 )
