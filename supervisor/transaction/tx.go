@@ -36,6 +36,7 @@ type Tx struct {
 	Signature       string `json:"sign"`
 	Type            string `json:"type"`
 	Status          string `json:"status"`
+	Data            string `json:"data"`
 }
 
 // TxList : List of Transactions

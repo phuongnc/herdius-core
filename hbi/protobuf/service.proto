@@ -69,6 +69,8 @@ message Tx {
   // type will check if tx is of type Account Registeration or Value Transfer
   string type             = 7;
   string status           = 8;
+  // For interacting with compound protocol
+  string data             = 9;
 }
 
 message TxRequest {
