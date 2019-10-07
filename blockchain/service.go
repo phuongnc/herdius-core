@@ -923,6 +923,7 @@ func transactiontoProto(txValue transaction.Tx) (tx pluginproto.Tx, err error) {
 		Type:            txValue.Type,
 		Sign:            txValue.Signature,
 		Status:          txValue.Status,
+		Data:            txValue.Data,
 	}
 
 	return
