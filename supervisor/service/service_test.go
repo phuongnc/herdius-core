@@ -22,6 +22,40 @@ import (
 	txbyte "github.com/herdius/herdius-core/tx"
 )
 
+func TestRegisterNewAccount(t *testing.T) {
+	symbol := aSymbol.ETH
+	asset := &pluginproto.Asset{
+		Symbol:  symbol,
+		Nonce:   0,
+		Network: "Herdius",
+	}
+	extSenderAddresses := make(map[string]string)
+	extSenderAddresses[aSymbol.ETH] = "0xD8f647855876549d2623f52126CE40D053a2ef6A"
+	extSenderAddresses[aSymbol.BTC] = "1JeTTcKK9awuzpX7MUE4y1TLAMGDSQpWt7"
+	extSenderAddresses[aSymbol.LTC] = "LcyVDKpSdvn2b52GSspXTRsUWrajsfxZg2"
+	extSenderAddresses[aSymbol.XTZ] = "tz1YXnYzAAriDqXRvFR42xmNenvnKgBEdGm3"
+	tx := &pluginproto.Tx{
+		SenderAddress:   "HHy1CuT3UxCGJ3BHydLEvR5ut6HRy2qUvm",
+		Asset:           asset,
+		Type:            "register",
+		ExternalAddress: extSenderAddresses,
+	}
+	account := &statedb.Account{
+		Address:              "HHy1CuT3UxCGJ3BHydLEvR5ut6HRy2qUvm",
+		FirstExternalAddress: make(map[string]string),
+	}
+	account = registerAccount(account, tx)
+	assert.True(t, len(account.EBalances) > 0)
+	assert.Equal(t, 4, len(account.EBalances))
+	assert.Equal(t, extSenderAddresses[aSymbol.ETH], account.EBalances[aSymbol.ETH]["0xD8f647855876549d2623f52126CE40D053a2ef6A"].Address)
+	assert.Equal(t, extSenderAddresses[aSymbol.ETH], account.FirstExternalAddress[aSymbol.ETH])
+	assert.Equal(t, extSenderAddresses[aSymbol.BTC], account.EBalances[aSymbol.BTC]["1JeTTcKK9awuzpX7MUE4y1TLAMGDSQpWt7"].Address)
+	assert.Equal(t, extSenderAddresses[aSymbol.BTC], account.FirstExternalAddress[aSymbol.BTC])
+	assert.Equal(t, extSenderAddresses[aSymbol.LTC], account.EBalances[aSymbol.LTC]["LcyVDKpSdvn2b52GSspXTRsUWrajsfxZg2"].Address)
+	assert.Equal(t, extSenderAddresses[aSymbol.LTC], account.FirstExternalAddress[aSymbol.LTC])
+	assert.Equal(t, extSenderAddresses[aSymbol.XTZ], account.EBalances[aSymbol.XTZ]["tz1YXnYzAAriDqXRvFR42xmNenvnKgBEdGm3"].Address)
+	assert.Equal(t, extSenderAddresses[aSymbol.XTZ], account.FirstExternalAddress[aSymbol.XTZ])
+}
 func TestRegisterNewHERAddress(t *testing.T) {
 	asset := &pluginproto.Asset{
 		Symbol: aSymbol.HER,
