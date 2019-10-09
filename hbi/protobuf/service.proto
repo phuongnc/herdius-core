@@ -71,6 +71,7 @@ message Tx {
   string status           = 8;
   // For interacting with compound protocol
   string data             = 9;
+  map<string,string> ExternalAddress  = 10;
 }
 
 message TxRequest {

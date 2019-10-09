@@ -22,6 +22,40 @@ import (
 	txbyte "github.com/herdius/herdius-core/tx"
 )
 
+func TestRegisterNewAccount(t *testing.T) {
+	symbol := aSymbol.ETH
+	asset := &pluginproto.Asset{
+		Symbol:  symbol,
+		Nonce:   0,
+		Network: "Herdius",
+	}
+	extSenderAddresses := make(map[string]string)
+	extSenderAddresses["ETH"] = "0xD8f647855876549d2623f52126CE40D053a2ef6A"
+	extSenderAddresses["BTC"] = "1JeTTcKK9awuzpX7MUE4y1TLAMGDSQpWt7"
+	extSenderAddresses["LTC"] = "LcyVDKpSdvn2b52GSspXTRsUWrajsfxZg2"
+	extSenderAddresses["TZX"] = "tz1YXnYzAAriDqXRvFR42xmNenvnKgBEdGm3"
+	tx := &pluginproto.Tx{
+		SenderAddress:   "HHy1CuT3UxCGJ3BHydLEvR5ut6HRy2qUvm",
+		Asset:           asset,
+		Type:            "register",
+		ExternalAddress: extSenderAddresses,
+	}
+	account := &statedb.Account{
+		Address:              "HHy1CuT3UxCGJ3BHydLEvR5ut6HRy2qUvm",
+		FirstExternalAddress: make(map[string]string),
+	}
+	account = registerAccount(account, tx)
+	assert.True(t, len(account.EBalances) > 0)
+	assert.Equal(t, 4, len(account.EBalances))
+	assert.Equal(t, extSenderAddresses["ETH"], account.EBalances["ETH"]["0xD8f647855876549d2623f52126CE40D053a2ef6A"].Address)
+	assert.Equal(t, extSenderAddresses["ETH"], account.FirstExternalAddress["ETH"])
+	assert.Equal(t, extSenderAddresses["BTC"], account.EBalances["BTC"]["1JeTTcKK9awuzpX7MUE4y1TLAMGDSQpWt7"].Address)
+	assert.Equal(t, extSenderAddresses["BTC"], account.FirstExternalAddress["BTC"])
+	assert.Equal(t, extSenderAddresses["LTC"], account.EBalances["LTC"]["LcyVDKpSdvn2b52GSspXTRsUWrajsfxZg2"].Address)
+	assert.Equal(t, extSenderAddresses["LTC"], account.FirstExternalAddress["LTC"])
+	assert.Equal(t, extSenderAddresses["TZX"], account.EBalances["TZX"]["tz1YXnYzAAriDqXRvFR42xmNenvnKgBEdGm3"].Address)
+	assert.Equal(t, extSenderAddresses["TZX"], account.FirstExternalAddress["TZX"])
+}
 func TestRegisterNewHERAddress(t *testing.T) {
 	asset := &pluginproto.Asset{
 		Symbol: aSymbol.HER,

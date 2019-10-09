@@ -625,6 +625,41 @@ func updateRedeemAccountLockedBalance(senderAccount *statedb.Account, tx *plugin
 	return senderAccount
 }
 
+// registerAccount will create register a new account to herdius blockchain
+// along with all the supported addresses
+func registerAccount(senderAccount *statedb.Account, tx *pluginproto.Tx) *statedb.Account {
+	log.Printf("New account register: %+v \n", tx)
+	senderAccount.Address = tx.SenderAddress
+	senderAccount.Balance = 0
+	senderAccount.Nonce = 0
+	senderAccount.PublicKey = tx.SenderPubkey
+	senderAccount.Erc20Address = tx.Asset.ExternalSenderAddress
+	senderAccount.FirstExternalAddress = make(map[string]string)
+
+	for symbol, address := range tx.ExternalAddress {
+		log.Println(symbol + " address ( " + address + " ) added.")
+		eBalance := statedb.EBalance{}
+		eBalance.Address = address
+		eBalance.Balance = 0
+		eBalance.LastBlockHeight = 0
+		eBalance.Nonce = 0
+		eBalances := senderAccount.EBalances
+		if len(eBalances) == 0 {
+			eBalances = make(map[string]map[string]statedb.EBalance)
+		}
+		if len(eBalances[symbol]) == 0 {
+			eBalances[symbol] = make(map[string]statedb.EBalance)
+		}
+		eBalances[symbol][address] = eBalance
+		senderAccount.EBalances = eBalances
+		if senderAccount.FirstExternalAddress == nil {
+			senderAccount.FirstExternalAddress = make(map[string]string)
+		}
+		senderAccount.FirstExternalAddress[symbol] = address
+	}
+	return senderAccount
+}
+
 func updateAccount(senderAccount *statedb.Account, tx *pluginproto.Tx) *statedb.Account {
 	if strings.EqualFold(strings.ToUpper(tx.Asset.Symbol), aSymbol.HER) &&
 		len(senderAccount.Address) == 0 {
@@ -1040,6 +1075,8 @@ func (s *Supervisor) updateStateForTxs(txs *txbyte.Txs, stateTrie statedb.Trie) 
 			strings.EqualFold(tx.Type, "Redeem") {
 
 			switch txType := strings.ToUpper(tx.Type); txType {
+			case "REGISTER":
+				senderAccount = *(registerAccount(&senderAccount, &tx))
 			case "UPDATE":
 				senderAccount = *(updateAccount(&senderAccount, &tx))
 			case "LOCK":
