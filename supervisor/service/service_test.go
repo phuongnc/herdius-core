@@ -30,10 +30,10 @@ func TestRegisterNewAccount(t *testing.T) {
 		Network: "Herdius",
 	}
 	extSenderAddresses := make(map[string]string)
-	extSenderAddresses["ETH"] = "0xD8f647855876549d2623f52126CE40D053a2ef6A"
-	extSenderAddresses["BTC"] = "1JeTTcKK9awuzpX7MUE4y1TLAMGDSQpWt7"
-	extSenderAddresses["LTC"] = "LcyVDKpSdvn2b52GSspXTRsUWrajsfxZg2"
-	extSenderAddresses["TZX"] = "tz1YXnYzAAriDqXRvFR42xmNenvnKgBEdGm3"
+	extSenderAddresses[aSymbol.ETH] = "0xD8f647855876549d2623f52126CE40D053a2ef6A"
+	extSenderAddresses[aSymbol.BTC] = "1JeTTcKK9awuzpX7MUE4y1TLAMGDSQpWt7"
+	extSenderAddresses[aSymbol.LTC] = "LcyVDKpSdvn2b52GSspXTRsUWrajsfxZg2"
+	extSenderAddresses[aSymbol.XTZ] = "tz1YXnYzAAriDqXRvFR42xmNenvnKgBEdGm3"
 	tx := &pluginproto.Tx{
 		SenderAddress:   "HHy1CuT3UxCGJ3BHydLEvR5ut6HRy2qUvm",
 		Asset:           asset,
@@ -47,14 +47,14 @@ func TestRegisterNewAccount(t *testing.T) {
 	account = registerAccount(account, tx)
 	assert.True(t, len(account.EBalances) > 0)
 	assert.Equal(t, 4, len(account.EBalances))
-	assert.Equal(t, extSenderAddresses["ETH"], account.EBalances["ETH"]["0xD8f647855876549d2623f52126CE40D053a2ef6A"].Address)
-	assert.Equal(t, extSenderAddresses["ETH"], account.FirstExternalAddress["ETH"])
-	assert.Equal(t, extSenderAddresses["BTC"], account.EBalances["BTC"]["1JeTTcKK9awuzpX7MUE4y1TLAMGDSQpWt7"].Address)
-	assert.Equal(t, extSenderAddresses["BTC"], account.FirstExternalAddress["BTC"])
-	assert.Equal(t, extSenderAddresses["LTC"], account.EBalances["LTC"]["LcyVDKpSdvn2b52GSspXTRsUWrajsfxZg2"].Address)
-	assert.Equal(t, extSenderAddresses["LTC"], account.FirstExternalAddress["LTC"])
-	assert.Equal(t, extSenderAddresses["TZX"], account.EBalances["TZX"]["tz1YXnYzAAriDqXRvFR42xmNenvnKgBEdGm3"].Address)
-	assert.Equal(t, extSenderAddresses["TZX"], account.FirstExternalAddress["TZX"])
+	assert.Equal(t, extSenderAddresses[aSymbol.ETH], account.EBalances[aSymbol.ETH]["0xD8f647855876549d2623f52126CE40D053a2ef6A"].Address)
+	assert.Equal(t, extSenderAddresses[aSymbol.ETH], account.FirstExternalAddress[aSymbol.ETH])
+	assert.Equal(t, extSenderAddresses[aSymbol.BTC], account.EBalances[aSymbol.BTC]["1JeTTcKK9awuzpX7MUE4y1TLAMGDSQpWt7"].Address)
+	assert.Equal(t, extSenderAddresses[aSymbol.BTC], account.FirstExternalAddress[aSymbol.BTC])
+	assert.Equal(t, extSenderAddresses[aSymbol.LTC], account.EBalances[aSymbol.LTC]["LcyVDKpSdvn2b52GSspXTRsUWrajsfxZg2"].Address)
+	assert.Equal(t, extSenderAddresses[aSymbol.LTC], account.FirstExternalAddress[aSymbol.LTC])
+	assert.Equal(t, extSenderAddresses[aSymbol.XTZ], account.EBalances[aSymbol.XTZ]["tz1YXnYzAAriDqXRvFR42xmNenvnKgBEdGm3"].Address)
+	assert.Equal(t, extSenderAddresses[aSymbol.XTZ], account.FirstExternalAddress[aSymbol.XTZ])
 }
 func TestRegisterNewHERAddress(t *testing.T) {
 	asset := &pluginproto.Asset{

@@ -635,6 +635,7 @@ func registerAccount(senderAccount *statedb.Account, tx *pluginproto.Tx) *stated
 	senderAccount.PublicKey = tx.SenderPubkey
 	senderAccount.Erc20Address = tx.Asset.ExternalSenderAddress
 	senderAccount.FirstExternalAddress = make(map[string]string)
+	senderAccount.EBalances = make(map[string]map[string]statedb.EBalance)
 
 	for symbol, address := range tx.ExternalAddress {
 		log.Println(symbol + " address ( " + address + " ) added.")
@@ -644,17 +645,11 @@ func registerAccount(senderAccount *statedb.Account, tx *pluginproto.Tx) *stated
 		eBalance.LastBlockHeight = 0
 		eBalance.Nonce = 0
 		eBalances := senderAccount.EBalances
-		if len(eBalances) == 0 {
-			eBalances = make(map[string]map[string]statedb.EBalance)
-		}
 		if len(eBalances[symbol]) == 0 {
 			eBalances[symbol] = make(map[string]statedb.EBalance)
 		}
 		eBalances[symbol][address] = eBalance
 		senderAccount.EBalances = eBalances
-		if senderAccount.FirstExternalAddress == nil {
-			senderAccount.FirstExternalAddress = make(map[string]string)
-		}
 		senderAccount.FirstExternalAddress[symbol] = address
 	}
 	return senderAccount
