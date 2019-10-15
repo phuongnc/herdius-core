@@ -950,10 +950,11 @@ func (s *Supervisor) updateStateForTxs(txs *txbyte.Txs, stateTrie statedb.Trie) 
 			Asset:           asset,
 			Message:         tx.Message,
 			Type:            tx.Type,
+			Data:            tx.Data,
+			ExternalAddress: tx.ExternalAddress,
 		}
 
 		txbBeforeSign, err := json.Marshal(verifiableTx)
-
 		if err != nil {
 			plog.Error().Msgf("Failed to marshal the transaction to verify sign: %v", err)
 			log.Printf("Failed to marshal the transaction to verify sign: %v", err)
@@ -1066,6 +1067,7 @@ func (s *Supervisor) updateStateForTxs(txs *txbyte.Txs, stateTrie statedb.Trie) 
 			continue
 
 		} else if strings.EqualFold(tx.Type, "Update") ||
+			strings.EqualFold(tx.Type, "Register") ||
 			strings.EqualFold(tx.Type, "Lock") ||
 			strings.EqualFold(tx.Type, "Redeem") {
 
