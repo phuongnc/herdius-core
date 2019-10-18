@@ -97,21 +97,7 @@ func (es *ExternalSyncer) update(address string) {
 				}
 				log.Debug().Msgf("New account balance after external balance debit: %v\n", last)
 			}
-			if lastExtBalance.Cmp(es.ExtBalance[assetAccount.Address]) == 0 {
-				assetAccount.Balance = 0
-				if es.BlockHeight[assetAccount.Address] != nil {
-					assetAccount.LastBlockHeight = es.BlockHeight[assetAccount.Address].Uint64()
-				}
-				assetAccount.Nonce = es.Nonce[assetAccount.Address]
-				es.Account.EBalances[assetSymbol][assetAccount.Address] = assetAccount
 
-				last = last.UpdateLastExtBalanceByKey(storageKey, es.ExtBalance[assetAccount.Address])
-				last = last.UpdateCurrentExtBalanceByKey(storageKey, es.ExtBalance[assetAccount.Address])
-				last = last.UpdateIsFirstEntryByKey(storageKey, false)
-				last = last.UpdateIsNewAmountUpdateByKey(storageKey, true)
-				last = last.UpdateAccount(es.Account)
-				es.Storage.Set(es.Account.Address, last)
-			}
 			return
 		}
 
