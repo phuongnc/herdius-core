@@ -30,7 +30,7 @@ func New(env string) *Network {
 	n.checker[symbol.HER] = &HER{}
 	n.checker[symbol.ETH] = &ETH{c.EthRPCURL}
 	n.checker[symbol.HBTC] = &ETH{c.EthRPCURL}
-	n.checker[symbol.HTZX] = &ETH{c.EthRPCURL}
+	n.checker[symbol.HXTZ] = &ETH{c.EthRPCURL}
 	n.checker[symbol.HLTC] = &ETH{c.EthRPCURL}
 	return n
 }
@@ -125,12 +125,12 @@ func (hbtc *HBTC) Check() bool {
 	return true
 }
 
-// HTZX represents checker for HTZX.
-type HTZX struct {
+// HXTZ represents checker for HTZX.
+type HXTZ struct {
 	url string
 }
 
-func (htzx *HTZX) Check() bool {
+func (htzx *HXTZ) Check() bool {
 	ethURL := htzx.url
 	if strings.Index(htzx.url, ".infura.io") > -1 {
 		ethURL += os.Getenv("INFURAID")
@@ -147,12 +147,12 @@ func (htzx *HTZX) Check() bool {
 	return true
 }
 
-// TZX represents checker for Tezos.
-type TZX struct {
+// XTZ represents checker for Tezos.
+type XTZ struct {
 	url string
 }
 
-func (tzx *TZX) Check() bool {
+func (tzx *XTZ) Check() bool {
 	// TODO: implement later.
 	return true
 }
