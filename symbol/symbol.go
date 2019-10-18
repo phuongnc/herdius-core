@@ -10,7 +10,7 @@ const (
 	BNB = "BNB"
 
 	HBTC = "HBTC"
-	HTZX = "HTZX"
+	HXTZ = "HXTZ"
 	HLTC = "HLTC"
 	HBNB = "HBNB"
 )

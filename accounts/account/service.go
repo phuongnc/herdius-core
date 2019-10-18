@@ -263,7 +263,8 @@ func (s *Service) AccountExternalAddressExist() bool {
 	assetSymbol := s.assetSymbol
 	extAddress := s.extAddress
 	if strings.EqualFold(s.txType, "Redeem") &&
-		(strings.EqualFold(assetSymbol, aSymbol.HBTC) || strings.EqualFold(assetSymbol, aSymbol.HTZX)) {
+		(strings.EqualFold(assetSymbol, aSymbol.HBTC) || strings.EqualFold(assetSymbol, aSymbol.HXTZ) ||
+			strings.EqualFold(assetSymbol, aSymbol.HLTC) || strings.EqualFold(assetSymbol, aSymbol.HBNB)) {
 		extAddress = s.account.FirstExternalAddress[aSymbol.ETH]
 	}
 	if s.account != nil && s.account.EBalances != nil && s.account.EBalances[assetSymbol] != nil {
@@ -305,6 +306,33 @@ func (s *Service) VerifyRedeemAmount() bool {
 	if strings.EqualFold(s.assetSymbol, aSymbol.HBTC) {
 		if s.account != nil && s.account.LockBalances != nil && s.account.LockBalances[aSymbol.BTC] != nil {
 			if asset := s.account.LockBalances[aSymbol.BTC].Asset; asset != nil {
+				return s.txRedeemAmount <= asset[s.extAddress]
+			}
+		}
+	}
+
+	// Verify HBNB
+	if strings.EqualFold(s.assetSymbol, aSymbol.HBNB) {
+		if s.account != nil && s.account.LockBalances != nil && s.account.LockBalances[aSymbol.BNB] != nil {
+			if asset := s.account.LockBalances[aSymbol.BNB].Asset; asset != nil {
+				return s.txRedeemAmount <= asset[s.extAddress]
+			}
+		}
+	}
+
+	// Verify HXTZ
+	if strings.EqualFold(s.assetSymbol, aSymbol.HXTZ) {
+		if s.account != nil && s.account.LockBalances != nil && s.account.LockBalances[aSymbol.XTZ] != nil {
+			if asset := s.account.LockBalances[aSymbol.XTZ].Asset; asset != nil {
+				return s.txRedeemAmount <= asset[s.extAddress]
+			}
+		}
+	}
+
+	// Verify HLTC
+	if strings.EqualFold(s.assetSymbol, aSymbol.HLTC) {
+		if s.account != nil && s.account.LockBalances != nil && s.account.LockBalances[aSymbol.LTC] != nil {
+			if asset := s.account.LockBalances[aSymbol.LTC].Asset; asset != nil {
 				return s.txRedeemAmount <= asset[s.extAddress]
 			}
 		}

@@ -564,6 +564,49 @@ func updateAccountLockedBalance(senderAccount *statedb.Account, tx *pluginproto.
 			senderAccount.EBalances = eBalances
 		}
 	}
+
+	if strings.EqualFold(aSymbol.BNB, tx.Asset.Symbol) {
+		if _, ok := senderAccount.EBalances[aSymbol.HBNB]; !ok {
+			eBalance := statedb.EBalance{}
+			eBalance.Address = senderAccount.FirstExternalAddress[aSymbol.ETH]
+			eBalance.Balance = 0
+			eBalance.LastBlockHeight = 0
+			eBalance.Nonce = 1
+			eBalances := senderAccount.EBalances
+			eBalances[aSymbol.HBNB] = make(map[string]statedb.EBalance)
+			eBalances[aSymbol.HBNB][senderAccount.FirstExternalAddress[aSymbol.ETH]] = eBalance
+			senderAccount.EBalances = eBalances
+		}
+	}
+
+	if strings.EqualFold(aSymbol.LTC, tx.Asset.Symbol) {
+		if _, ok := senderAccount.EBalances[aSymbol.HLTC]; !ok {
+			eBalance := statedb.EBalance{}
+			eBalance.Address = senderAccount.FirstExternalAddress[aSymbol.ETH]
+			eBalance.Balance = 0
+			eBalance.LastBlockHeight = 0
+			eBalance.Nonce = 1
+			eBalances := senderAccount.EBalances
+			eBalances[aSymbol.HLTC] = make(map[string]statedb.EBalance)
+			eBalances[aSymbol.HLTC][senderAccount.FirstExternalAddress[aSymbol.ETH]] = eBalance
+			senderAccount.EBalances = eBalances
+		}
+	}
+
+	if strings.EqualFold(aSymbol.XTZ, tx.Asset.Symbol) {
+		if _, ok := senderAccount.EBalances[aSymbol.HXTZ]; !ok {
+			eBalance := statedb.EBalance{}
+			eBalance.Address = senderAccount.FirstExternalAddress[aSymbol.ETH]
+			eBalance.Balance = 0
+			eBalance.LastBlockHeight = 0
+			eBalance.Nonce = 1
+			eBalances := senderAccount.EBalances
+			eBalances[aSymbol.HXTZ] = make(map[string]statedb.EBalance)
+			eBalances[aSymbol.HXTZ][senderAccount.FirstExternalAddress[aSymbol.ETH]] = eBalance
+			senderAccount.EBalances = eBalances
+		}
+	}
+
 	log.Printf("Locked Account: %v+\n", *senderAccount)
 	return senderAccount
 }
@@ -577,6 +620,15 @@ func updateRedeemAccountLockedBalance(senderAccount *statedb.Account, tx *plugin
 	switch strings.ToUpper(tx.Asset.Symbol) {
 	case aSymbol.HBTC:
 		asset = aSymbol.BTC
+		firstExternalAddress = senderAccount.FirstExternalAddress[aSymbol.ETH]
+	case aSymbol.HBNB:
+		asset = aSymbol.BNB
+		firstExternalAddress = senderAccount.FirstExternalAddress[aSymbol.ETH]
+	case aSymbol.HLTC:
+		asset = aSymbol.LTC
+		firstExternalAddress = senderAccount.FirstExternalAddress[aSymbol.ETH]
+	case aSymbol.HXTZ:
+		asset = aSymbol.XTZ
 		firstExternalAddress = senderAccount.FirstExternalAddress[aSymbol.ETH]
 	}
 
@@ -601,6 +653,60 @@ func updateRedeemAccountLockedBalance(senderAccount *statedb.Account, tx *plugin
 				Nonce:           senderAccount.EBalances[tx.Asset.Symbol][firstExternalAddress].Nonce,
 			}
 			senderAccount.EBalances[tx.Asset.Symbol][firstExternalAddress] = newHBTCEBal
+		}
+
+		if strings.EqualFold(tx.Asset.Symbol, aSymbol.HBNB) {
+			// New HBNB Balance update
+			firstExternalAddress := senderAccount.FirstExternalAddress[aSymbol.ETH]
+			var newHBNBExternalBal uint64
+			if senderAccount.EBalances[tx.Asset.Symbol][tx.Asset.ExternalSenderAddress].Balance > tx.Asset.RedeemedAmount {
+				newHBNBExternalBal = senderAccount.EBalances[tx.Asset.Symbol][tx.Asset.ExternalSenderAddress].Balance - tx.Asset.RedeemedAmount
+			} else {
+				newHBNBExternalBal = 0
+			}
+			newHBNBEBal := statedb.EBalance{
+				Address:         firstExternalAddress,
+				Balance:         newHBNBExternalBal,
+				LastBlockHeight: senderAccount.EBalances[tx.Asset.Symbol][firstExternalAddress].LastBlockHeight,
+				Nonce:           senderAccount.EBalances[tx.Asset.Symbol][firstExternalAddress].Nonce,
+			}
+			senderAccount.EBalances[tx.Asset.Symbol][firstExternalAddress] = newHBNBEBal
+		}
+
+		if strings.EqualFold(tx.Asset.Symbol, aSymbol.HXTZ) {
+			// New HXTZ Balance update
+			firstExternalAddress := senderAccount.FirstExternalAddress[aSymbol.ETH]
+			var newHXTZExternalBal uint64
+			if senderAccount.EBalances[tx.Asset.Symbol][tx.Asset.ExternalSenderAddress].Balance > tx.Asset.RedeemedAmount {
+				newHXTZExternalBal = senderAccount.EBalances[tx.Asset.Symbol][tx.Asset.ExternalSenderAddress].Balance - tx.Asset.RedeemedAmount
+			} else {
+				newHXTZExternalBal = 0
+			}
+			newHXTZEBal := statedb.EBalance{
+				Address:         firstExternalAddress,
+				Balance:         newHXTZExternalBal,
+				LastBlockHeight: senderAccount.EBalances[tx.Asset.Symbol][firstExternalAddress].LastBlockHeight,
+				Nonce:           senderAccount.EBalances[tx.Asset.Symbol][firstExternalAddress].Nonce,
+			}
+			senderAccount.EBalances[tx.Asset.Symbol][firstExternalAddress] = newHXTZEBal
+		}
+
+		if strings.EqualFold(tx.Asset.Symbol, aSymbol.HLTC) {
+			// New HLTC Balance update
+			firstExternalAddress := senderAccount.FirstExternalAddress[aSymbol.ETH]
+			var newExternalBal uint64
+			if senderAccount.EBalances[tx.Asset.Symbol][tx.Asset.ExternalSenderAddress].Balance > tx.Asset.RedeemedAmount {
+				newExternalBal = senderAccount.EBalances[tx.Asset.Symbol][tx.Asset.ExternalSenderAddress].Balance - tx.Asset.RedeemedAmount
+			} else {
+				newExternalBal = 0
+			}
+			newHLTCEBal := statedb.EBalance{
+				Address:         firstExternalAddress,
+				Balance:         newExternalBal,
+				LastBlockHeight: senderAccount.EBalances[tx.Asset.Symbol][firstExternalAddress].LastBlockHeight,
+				Nonce:           senderAccount.EBalances[tx.Asset.Symbol][firstExternalAddress].Nonce,
+			}
+			senderAccount.EBalances[tx.Asset.Symbol][firstExternalAddress] = newHLTCEBal
 		}
 		return senderAccount
 
