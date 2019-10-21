@@ -50,12 +50,16 @@ func (es *ExternalSyncer) update(address string) {
 
 	herEthBalance := *big.NewInt(int64(0))
 	storageKey := assetSymbol + "-" + assetAccount.Address
+	//fmt.Println("storageKey::::", storageKey)
 	if last, ok := es.Storage.Get(es.Account.Address); ok {
+
 		// last-balance < External-ETH
 		// Balance of ETH in H = Balance of ETH in H + ( Current_External_Bal - last_External_Bal_In_Cache)
 		if lastExtBalance, ok := last.LastExtBalance[storageKey]; ok && lastExtBalance != nil {
+			//fmt.Println("lastExtBalance::::", lastExtBalance)
+			//fmt.Println("es.ExtBalance[assetAccount.Address]::::", es.ExtBalance[assetAccount.Address])
 			if lastExtBalance.Cmp(es.ExtBalance[assetAccount.Address]) < 0 {
-				log.Debug().Msgf("lastExtBalance.Cmp(es.ExtBalance[%s])", assetAccount.Address)
+				//log.Debug().Msgf("lastExtBalance.Cmp(es.ExtBalance[%s])", assetAccount.Address)
 
 				herEthBalance.Sub(es.ExtBalance[assetAccount.Address], lastExtBalance)
 
@@ -78,7 +82,7 @@ func (es *ExternalSyncer) update(address string) {
 			// last-balance < External-ETH
 			// Balance of ETH in H1 	= Balance of ETH in H - ( last_External_Bal_In_Cache - Current_External_Bal )
 			if lastExtBalance.Cmp(es.ExtBalance[assetAccount.Address]) > 0 {
-				log.Debug().Msg("lastExtBalance.Cmp(es.ExtBalance) ============")
+				//	log.Debug().Msg("lastExtBalance.Cmp(es.ExtBalance) ============")
 				herEthBalance.Sub(lastExtBalance, es.ExtBalance[assetAccount.Address])
 				if assetAccount.Balance >= herEthBalance.Uint64() {
 					assetAccount.Balance -= herEthBalance.Uint64()
@@ -101,7 +105,7 @@ func (es *ExternalSyncer) update(address string) {
 			return
 		}
 
-		log.Info().Msgf("Initialise external balance in cache: %v\n", last)
+		//log.Info().Msgf("Initialise external balance in cache: %v\n", last)
 		if es.ExtBalance[assetAccount.Address] == nil {
 			es.ExtBalance[assetAccount.Address] = big.NewInt(0)
 		}
