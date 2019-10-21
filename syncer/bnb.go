@@ -24,8 +24,8 @@ func newBNBSyncer() *BNBSyncer {
 }
 
 type Balance struct {
-	free   string
-	symbol string
+	Free   string
+	Symbol string
 }
 
 type bnbBalance struct {
@@ -55,8 +55,8 @@ func (bs *BNBSyncer) GetExtBalance() error {
 		}
 
 		for _, b := range balanceResp.Balances {
-			if b.symbol == "BNB" {
-				balance, err := strconv.ParseFloat(b.free, 64)
+			if b.Symbol == "BNB" {
+				balance, err := strconv.ParseFloat(b.Free, 64)
 				if err == nil {
 					bs.syncer.addressError[ba.Address] = false
 					bs.syncer.ExtBalance[ba.Address] = big.NewInt(int64(balance * mutez))
