@@ -1,6 +1,7 @@
 package sync
 
 import (
+	"fmt"
 	"os"
 	"strings"
 	stdSync "sync"
@@ -13,15 +14,17 @@ import (
 	"github.com/herdius/herdius-core/p2p/log"
 	external "github.com/herdius/herdius-core/storage/exbalance"
 	"github.com/herdius/herdius-core/storage/state/statedb"
+	"github.com/herdius/herdius-core/symbol"
 )
 
 type apiEndponts struct {
 	btcRPC   string
 	ethRPC   string
-	hbtcRPC  string
 	tezosRPC string
 	ltcRPC   string
 	bnbRPC   string
+
+	hbtcRPC string
 
 	herTokenAddress string
 	daiTokenAddress string
@@ -42,10 +45,10 @@ func DoSyncAllAccounts(exBal external.BalanceStorage, env string, stopCh chan st
 	rpc.herTokenAddress = viper.GetString(env + ".hercontractaddress")
 	rpc.daiTokenAddress = viper.GetString(env + ".daicontractaddress")
 	rpc.btcRPC = viper.GetString(env + ".blockchaininforpc")
-	rpc.hbtcRPC = viper.GetString(env + ".hbtcrpc")
 	rpc.tezosRPC = viper.GetString(env + ".tezosrpc")
 	rpc.ltcRPC = viper.GetString(env + ".ltcrpc")
 	rpc.bnbRPC = viper.GetString(env + ".bnbrpc")
+	rpc.hbtcRPC = fmt.Sprintf(viper.GetString(env+".htokenrpc"), strings.ToLower(symbol.HBTC))
 
 	if strings.Index(rpc.ethRPC, ".infura.io") > -1 {
 		rpc.ethRPC += os.Getenv("INFURAID")
