@@ -24,6 +24,18 @@ func newHBTCSyncer() *HTokenSyncer {
 	return newHTokenSyncer(symbol.HBTC, symbol.ETH)
 }
 
+func newHLTCSyncer() *HTokenSyncer {
+	return newHTokenSyncer(symbol.HLTC, symbol.LTC)
+}
+
+func newHBNBSyncer() *HTokenSyncer {
+	return newHTokenSyncer(symbol.HBNB, symbol.BNB)
+}
+
+func newHXTZSyncer() *HTokenSyncer {
+	return newHTokenSyncer(symbol.HXTZ, symbol.HXTZ)
+}
+
 func newHTokenSyncer(hSymbol, parentSymbol string) *HTokenSyncer {
 	h := &HTokenSyncer{symbol: hSymbol, parentSymbol: parentSymbol}
 	h.syncer = newExternalSyncer(hSymbol)

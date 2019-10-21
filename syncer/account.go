@@ -186,6 +186,27 @@ func sync(exBal external.BalanceStorage, rpc apiEndponts) {
 		bnbSyncer.syncer.Storage = exBal
 		syncers = append(syncers, bnbSyncer)
 
+		// HLTC syncer
+		hltcSyncer := newHLTCSyncer()
+		hltcSyncer.RPC = rpc.hltcRPC
+		hltcSyncer.syncer.Account = senderAccount
+		hltcSyncer.syncer.Storage = exBal
+		syncers = append(syncers, hltcSyncer)
+
+		// HBNB syncer
+		hbnbSyncer := newHBNBSyncer()
+		hbnbSyncer.RPC = rpc.hbnbRPC
+		hbnbSyncer.syncer.Account = senderAccount
+		hbnbSyncer.syncer.Storage = exBal
+		syncers = append(syncers, hbnbSyncer)
+
+		// HXTZ syncer
+		hxtzSyncer := newHXTZSyncer()
+		hxtzSyncer.RPC = rpc.hxtzRPC
+		hxtzSyncer.syncer.Account = senderAccount
+		hxtzSyncer.syncer.Storage = exBal
+		syncers = append(syncers, hxtzSyncer)
+
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
