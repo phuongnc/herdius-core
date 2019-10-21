@@ -52,7 +52,7 @@ func (hs *HTokenSyncer) GetExtBalance() error {
 		return fmt.Errorf("%s account does not exists", hs.parentSymbol)
 	}
 
-	hbtcAccount, ok := parentSymbolAccount[hs.syncer.Account.FirstExternalAddress[hs.parentSymbol]]
+	hTokenAccount, ok := parentSymbolAccount[hs.syncer.Account.FirstExternalAddress[hs.parentSymbol]]
 	if !ok {
 		msg := fmt.Sprintf("%s does not exist", hs.symbol)
 		log.Warn().Msg(msg)
@@ -60,7 +60,7 @@ func (hs *HTokenSyncer) GetExtBalance() error {
 	}
 
 	httpClient := newHTTPClient()
-	resp, err := httpClient.Get(fmt.Sprintf("%s/%s", hs.RPC, hbtcAccount.Address))
+	resp, err := httpClient.Get(fmt.Sprintf("%s/%s", hs.RPC, hTokenAccount.Address))
 	if err != nil {
 		log.Error().Err(err).Msgf("failed to get %s balance", hs.symbol)
 		return err
@@ -79,7 +79,7 @@ func (hs *HTokenSyncer) GetExtBalance() error {
 		return err
 	}
 
-	hs.syncer.ExtBalance[hbtcAccount.Address] = big.NewInt(balance)
+	hs.syncer.ExtBalance[hTokenAccount.Address] = big.NewInt(balance)
 
 	return nil
 }

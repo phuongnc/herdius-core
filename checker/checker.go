@@ -29,9 +29,11 @@ func New(env string) *Network {
 	n.checker[symbol.BTC] = &BTC{c.CheckerBtcURL}
 	n.checker[symbol.HER] = &HER{}
 	n.checker[symbol.ETH] = &ETH{c.EthRPCURL}
+	n.checker[symbol.BNB] = &ETH{c.EthRPCURL}
 	n.checker[symbol.HBTC] = &ETH{c.EthRPCURL}
 	n.checker[symbol.HXTZ] = &ETH{c.EthRPCURL}
 	n.checker[symbol.HLTC] = &ETH{c.EthRPCURL}
+	n.checker[symbol.HBNB] = &ETH{c.EthRPCURL}
 	return n
 }
 
