@@ -1,6 +1,7 @@
 package sync
 
 import (
+	"fmt"
 	"os"
 	"strings"
 	stdSync "sync"
@@ -13,15 +14,20 @@ import (
 	"github.com/herdius/herdius-core/p2p/log"
 	external "github.com/herdius/herdius-core/storage/exbalance"
 	"github.com/herdius/herdius-core/storage/state/statedb"
+	"github.com/herdius/herdius-core/symbol"
 )
 
 type apiEndponts struct {
 	btcRPC   string
 	ethRPC   string
-	hbtcRPC  string
 	tezosRPC string
 	ltcRPC   string
 	bnbRPC   string
+
+	hbtcRPC string
+	hbnbRPC string
+	hltcRPC string
+	hxtzRPC string
 
 	herTokenAddress string
 	daiTokenAddress string
@@ -42,10 +48,13 @@ func DoSyncAllAccounts(exBal external.BalanceStorage, env string, stopCh chan st
 	rpc.herTokenAddress = viper.GetString(env + ".hercontractaddress")
 	rpc.daiTokenAddress = viper.GetString(env + ".daicontractaddress")
 	rpc.btcRPC = viper.GetString(env + ".blockchaininforpc")
-	rpc.hbtcRPC = viper.GetString(env + ".hbtcrpc")
 	rpc.tezosRPC = viper.GetString(env + ".tezosrpc")
 	rpc.ltcRPC = viper.GetString(env + ".ltcrpc")
 	rpc.bnbRPC = viper.GetString(env + ".bnbrpc")
+	rpc.hbtcRPC = fmt.Sprintf(viper.GetString(env+".htokenrpc"), strings.ToLower(symbol.HBTC))
+	rpc.hbnbRPC = fmt.Sprintf(viper.GetString(env+".htokenrpc"), strings.ToLower(symbol.HBNB))
+	rpc.hltcRPC = fmt.Sprintf(viper.GetString(env+".htokenrpc"), strings.ToLower(symbol.HLTC))
+	rpc.hxtzRPC = fmt.Sprintf(viper.GetString(env+".htokenrpc"), strings.ToLower(symbol.HXTZ))
 
 	if strings.Index(rpc.ethRPC, ".infura.io") > -1 {
 		rpc.ethRPC += os.Getenv("INFURAID")
@@ -176,6 +185,27 @@ func sync(exBal external.BalanceStorage, rpc apiEndponts) {
 		bnbSyncer.syncer.Account = senderAccount
 		bnbSyncer.syncer.Storage = exBal
 		syncers = append(syncers, bnbSyncer)
+
+		// HLTC syncer
+		hltcSyncer := newHLTCSyncer()
+		hltcSyncer.RPC = rpc.hltcRPC
+		hltcSyncer.syncer.Account = senderAccount
+		hltcSyncer.syncer.Storage = exBal
+		syncers = append(syncers, hltcSyncer)
+
+		// HBNB syncer
+		hbnbSyncer := newHBNBSyncer()
+		hbnbSyncer.RPC = rpc.hbnbRPC
+		hbnbSyncer.syncer.Account = senderAccount
+		hbnbSyncer.syncer.Storage = exBal
+		syncers = append(syncers, hbnbSyncer)
+
+		// HXTZ syncer
+		hxtzSyncer := newHXTZSyncer()
+		hxtzSyncer.RPC = rpc.hxtzRPC
+		hxtzSyncer.syncer.Account = senderAccount
+		hxtzSyncer.syncer.Storage = exBal
+		syncers = append(syncers, hxtzSyncer)
 
 		wg.Add(1)
 		go func() {
