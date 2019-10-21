@@ -25,15 +25,15 @@ func newHBTCSyncer() *HTokenSyncer {
 }
 
 func newHLTCSyncer() *HTokenSyncer {
-	return newHTokenSyncer(symbol.HLTC, symbol.LTC)
+	return newHTokenSyncer(symbol.HLTC, symbol.ETH)
 }
 
 func newHBNBSyncer() *HTokenSyncer {
-	return newHTokenSyncer(symbol.HBNB, symbol.BNB)
+	return newHTokenSyncer(symbol.HBNB, symbol.ETH)
 }
 
 func newHXTZSyncer() *HTokenSyncer {
-	return newHTokenSyncer(symbol.HXTZ, symbol.HXTZ)
+	return newHTokenSyncer(symbol.HXTZ, symbol.ETH)
 }
 
 func newHTokenSyncer(hSymbol, parentSymbol string) *HTokenSyncer {
