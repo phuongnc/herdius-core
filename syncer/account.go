@@ -25,6 +25,9 @@ type apiEndponts struct {
 	bnbRPC   string
 
 	hbtcRPC string
+	hbnbRPC string
+	hltcRPC string
+	hxtzRPC string
 
 	herTokenAddress string
 	daiTokenAddress string
@@ -49,6 +52,9 @@ func DoSyncAllAccounts(exBal external.BalanceStorage, env string, stopCh chan st
 	rpc.ltcRPC = viper.GetString(env + ".ltcrpc")
 	rpc.bnbRPC = viper.GetString(env + ".bnbrpc")
 	rpc.hbtcRPC = fmt.Sprintf(viper.GetString(env+".htokenrpc"), strings.ToLower(symbol.HBTC))
+	rpc.hbnbRPC = fmt.Sprintf(viper.GetString(env+".htokenrpc"), strings.ToLower(symbol.HBNB))
+	rpc.hltcRPC = fmt.Sprintf(viper.GetString(env+".htokenrpc"), strings.ToLower(symbol.HLTC))
+	rpc.hxtzRPC = fmt.Sprintf(viper.GetString(env+".htokenrpc"), strings.ToLower(symbol.HXTZ))
 
 	if strings.Index(rpc.ethRPC, ".infura.io") > -1 {
 		rpc.ethRPC += os.Getenv("INFURAID")
