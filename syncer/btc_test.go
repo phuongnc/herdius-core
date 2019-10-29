@@ -9,7 +9,6 @@ import (
 	external "github.com/herdius/herdius-core/storage/exbalance"
 	"github.com/herdius/herdius-core/storage/state/statedb"
 	"github.com/herdius/herdius-core/symbol"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestNoResponseFromAPI(t *testing.T) {
@@ -39,6 +38,5 @@ func TestNoResponseFromAPI(t *testing.T) {
 	bs.Update()
 
 	bs.syncer.ExtBalance[addr] = nil
-	assert.Panics(t, bs.Update, "")
-
+	bs.Update()
 }
