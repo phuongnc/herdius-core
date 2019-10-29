@@ -50,6 +50,9 @@ func (es *ExternalSyncer) update(address string) {
 
 	herEthBalance := *big.NewInt(int64(0))
 	storageKey := assetSymbol + "-" + assetAccount.Address
+	if es.ExtBalance[assetAccount.Address] == nil {
+		es.ExtBalance[assetAccount.Address] = big.NewInt(0)
+	}
 	//fmt.Println("storageKey::::", storageKey)
 	if last, ok := es.Storage.Get(es.Account.Address); ok {
 
