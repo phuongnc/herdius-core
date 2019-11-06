@@ -873,6 +873,7 @@ func GetBlockchainDb() db.DB {
 func getTxIDWithoutStatus(tx *pluginproto.Tx) string {
 	txWithOutStatus := *tx
 	txWithOutStatus.Status = ""
+	txWithOutStatus.ExternalAddress = nil
 	txbzWithOutStatus, _ := cdc.MarshalJSON(txWithOutStatus)
 	txID := cmn.CreateTxID(txbzWithOutStatus)
 	return txID
