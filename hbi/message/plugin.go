@@ -272,14 +272,11 @@ func (state *TransactionMessagePlugin) Receive(ctx *network.PluginContext) error
 			return errors.New("Not enough balance: " + strconv.FormatUint(uint64(msg.Tx.GetAsset().Value), 10))
 		}
 
-		defer func(m map[string]string) {
-			tx.ExternalAddress = m
-		}(tx.ExternalAddress)
-		tx.ExternalAddress = nil
-
+		txWithoutExternalAddress := *tx
+		txWithoutExternalAddress.ExternalAddress = nil
 		// Add Tx to Mempool
 		mp := mempool.GetMemPool()
-		txbz, err := cdc.MarshalJSON(tx)
+		txbz, err := cdc.MarshalJSON(txWithoutExternalAddress)
 		if err != nil {
 			if err := ctx.Reply(network.WithSignMessage(context.Background(), true), &protoplugin.TxResponse{
 				TxId: "", Status: "failed", Queued: 0, Pending: 0,
@@ -352,13 +349,11 @@ func (state *TransactionMessagePlugin) Receive(ctx *network.PluginContext) error
 }
 
 func postAccountUpdateTx(tx *protoplugin.Tx, ctx *network.PluginContext, as account.ServiceI) error {
-	defer func(m map[string]string) {
-		tx.ExternalAddress = m
-	}(tx.ExternalAddress)
-	tx.ExternalAddress = nil
+	txWithoutExternalAddress := *tx
+	txWithoutExternalAddress.ExternalAddress = nil
 	// Add Tx to Mempool
 	mp := mempool.GetMemPool()
-	txbz, err := cdc.MarshalJSON(tx)
+	txbz, err := cdc.MarshalJSON(txWithoutExternalAddress)
 	if err != nil {
 		if err := ctx.Reply(network.WithSignMessage(context.Background(), true),
 			&protoplugin.TxResponse{
