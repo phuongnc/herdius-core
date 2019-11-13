@@ -233,6 +233,18 @@ func TestVerifyBTCRedeemAmount(t *testing.T) {
 	assert.False(t, accService.VerifyRedeemAmount())
 }
 
+func TestRedeemAddress(t *testing.T) {
+	accService := NewAccountService()
+	extAddr := "0xD8f647855876549d2623f52126CE40D053a2ef6A"
+
+	account := &protobuf.Account{Balance: 1}
+	accService.SetAccount(account)
+	accService.SetAssetSymbol(aSymbol.HBTC)
+	accService.SetTxRedeemAmount(1)
+	accService.SetRedeemAddress("redeemaddress")
+	accService.SetExtAddress(extAddr)
+}
+
 func TestAccountExternalAddressExistForRedeemTrue(t *testing.T) {
 	accService := NewAccountService()
 	eBalance := &protobuf.EBalance{

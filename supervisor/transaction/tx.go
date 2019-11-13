@@ -24,6 +24,7 @@ type Asset struct {
 	ExternalBlockHeight     uint64 `json:"external_block_height"`
 	LockedAmount            uint64 `json:"locked_amount"`
 	RedeemedAmount          uint64 `json:"redeemed_amount"`
+	RedeemAddress           string `json:"redeem_address"`
 }
 
 // Tx ...

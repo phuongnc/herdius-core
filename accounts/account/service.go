@@ -45,6 +45,7 @@ type Service struct {
 	txLockedAmount  uint64
 	txRedeemAmount  uint64
 	txType          string
+	txRedeemAddress string
 }
 
 // Account returns state db account
@@ -75,6 +76,16 @@ func (s *Service) Address() string {
 // SetAddress sets Service asset symbol
 func (s *Service) SetAddress(address string) {
 	s.address = address
+}
+
+// RedeemAddress returns service Redeem Address
+func (s *Service) RedeemAddress() string {
+	return s.txRedeemAddress
+}
+
+// SetRedeemAddress sets Redeem Address
+func (s *Service) SetRedeemAddress(redeemAddress string) {
+	s.txRedeemAddress = redeemAddress
 }
 
 // ReceiverAddress returns receiver's her account address

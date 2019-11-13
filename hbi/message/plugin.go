@@ -150,6 +150,7 @@ func (state *TransactionMessagePlugin) Receive(ctx *network.PluginContext) error
 		accSrv.SetTxValue(tx.Asset.Value)
 		accSrv.SetTxLockedAmount(tx.Asset.LockedAmount)
 		accSrv.SetTxRedeemAmount(tx.Asset.RedeemedAmount)
+		accSrv.SetRedeemAddress(tx.Asset.RedeemAddress)
 		accSrv.SetTxType(tx.Type)
 		acc, err := accSrv.GetAccountByAddress(msg.Tx.GetSenderAddress())
 		if err != nil {
