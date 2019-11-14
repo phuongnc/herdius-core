@@ -621,15 +621,27 @@ func updateRedeemAccountLockedBalance(senderAccount *statedb.Account, tx *plugin
 	case aSymbol.HBTC:
 		asset = aSymbol.BTC
 		firstExternalAddress = senderAccount.FirstExternalAddress[aSymbol.ETH]
+		if senderAccount.RedeemAddress[asset] != "" {
+			firstExternalAddress = senderAccount.RedeemAddress[asset]
+		}
 	case aSymbol.HBNB:
 		asset = aSymbol.BNB
 		firstExternalAddress = senderAccount.FirstExternalAddress[aSymbol.ETH]
+		if senderAccount.RedeemAddress[asset] != "" {
+			firstExternalAddress = senderAccount.RedeemAddress[asset]
+		}
 	case aSymbol.HLTC:
 		asset = aSymbol.LTC
-		firstExternalAddress = senderAccount.FirstExternalAddress[aSymbol.ETH]
+		firstExternalAddress = senderAccount.FirstExternalAddress[asset]
+		if senderAccount.RedeemAddress[asset] != "" {
+			firstExternalAddress = senderAccount.RedeemAddress[asset]
+		}
 	case aSymbol.HXTZ:
 		asset = aSymbol.XTZ
-		firstExternalAddress = senderAccount.FirstExternalAddress[aSymbol.ETH]
+		firstExternalAddress = senderAccount.FirstExternalAddress[asset]
+		if senderAccount.RedeemAddress[asset] != "" {
+			firstExternalAddress = senderAccount.RedeemAddress[asset]
+		}
 	}
 
 	if firstExternalAddress == "" {
@@ -640,6 +652,9 @@ func updateRedeemAccountLockedBalance(senderAccount *statedb.Account, tx *plugin
 		if strings.EqualFold(tx.Asset.Symbol, aSymbol.HBTC) {
 			// New HBTC Balance update
 			firstExternalAddress := senderAccount.FirstExternalAddress[aSymbol.ETH]
+			if senderAccount.RedeemAddress[aSymbol.HBTC] != "" {
+				firstExternalAddress = senderAccount.RedeemAddress[aSymbol.HBTC]
+			}
 			var newHBTCExternalBal uint64
 			if senderAccount.EBalances[tx.Asset.Symbol][tx.Asset.ExternalSenderAddress].Balance > tx.Asset.RedeemedAmount {
 				newHBTCExternalBal = senderAccount.EBalances[tx.Asset.Symbol][tx.Asset.ExternalSenderAddress].Balance - tx.Asset.RedeemedAmount
@@ -658,6 +673,9 @@ func updateRedeemAccountLockedBalance(senderAccount *statedb.Account, tx *plugin
 		if strings.EqualFold(tx.Asset.Symbol, aSymbol.HBNB) {
 			// New HBNB Balance update
 			firstExternalAddress := senderAccount.FirstExternalAddress[aSymbol.ETH]
+			if senderAccount.RedeemAddress[aSymbol.HBNB] != "" {
+				firstExternalAddress = senderAccount.RedeemAddress[aSymbol.HBNB]
+			}
 			var newHBNBExternalBal uint64
 			if senderAccount.EBalances[tx.Asset.Symbol][tx.Asset.ExternalSenderAddress].Balance > tx.Asset.RedeemedAmount {
 				newHBNBExternalBal = senderAccount.EBalances[tx.Asset.Symbol][tx.Asset.ExternalSenderAddress].Balance - tx.Asset.RedeemedAmount
@@ -676,6 +694,9 @@ func updateRedeemAccountLockedBalance(senderAccount *statedb.Account, tx *plugin
 		if strings.EqualFold(tx.Asset.Symbol, aSymbol.HXTZ) {
 			// New HXTZ Balance update
 			firstExternalAddress := senderAccount.FirstExternalAddress[aSymbol.ETH]
+			if senderAccount.RedeemAddress[aSymbol.HBNB] != "" {
+				firstExternalAddress = senderAccount.RedeemAddress[aSymbol.HBNB]
+			}
 			var newHXTZExternalBal uint64
 			if senderAccount.EBalances[tx.Asset.Symbol][tx.Asset.ExternalSenderAddress].Balance > tx.Asset.RedeemedAmount {
 				newHXTZExternalBal = senderAccount.EBalances[tx.Asset.Symbol][tx.Asset.ExternalSenderAddress].Balance - tx.Asset.RedeemedAmount
@@ -694,6 +715,9 @@ func updateRedeemAccountLockedBalance(senderAccount *statedb.Account, tx *plugin
 		if strings.EqualFold(tx.Asset.Symbol, aSymbol.HLTC) {
 			// New HLTC Balance update
 			firstExternalAddress := senderAccount.FirstExternalAddress[aSymbol.ETH]
+			if senderAccount.RedeemAddress[aSymbol.HLTC] != "" {
+				firstExternalAddress = senderAccount.RedeemAddress[aSymbol.HLTC]
+			}
 			var newExternalBal uint64
 			if senderAccount.EBalances[tx.Asset.Symbol][tx.Asset.ExternalSenderAddress].Balance > tx.Asset.RedeemedAmount {
 				newExternalBal = senderAccount.EBalances[tx.Asset.Symbol][tx.Asset.ExternalSenderAddress].Balance - tx.Asset.RedeemedAmount
