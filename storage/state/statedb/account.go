@@ -18,6 +18,7 @@ type Account struct {
 	EBalances            map[string]map[string]EBalance
 	FirstExternalAddress map[string]string
 	LockedBalance        map[string]map[string]uint64
+	RedeemAddress        map[string]string
 }
 
 // EBalance is external balance model
