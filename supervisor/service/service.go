@@ -551,58 +551,83 @@ func updateAccountLockedBalance(senderAccount *statedb.Account, tx *pluginproto.
 	}
 	withdraw(senderAccount, tx.Asset.Symbol, tx.Asset.ExternalSenderAddress, tx.Asset.LockedAmount)
 	senderAccount.Nonce = tx.Asset.Nonce
+
 	if strings.EqualFold(aSymbol.BTC, tx.Asset.Symbol) {
+		redeemAddress := ""
+		if tx.RecieverAddress != "" {
+			redeemAddress = senderAccount.FirstExternalAddress[aSymbol.ETH]
+		} else {
+			redeemAddress = tx.RecieverAddress
+		}
 		if _, ok := senderAccount.EBalances[aSymbol.HBTC]; !ok {
 			eBalance := statedb.EBalance{}
-			eBalance.Address = senderAccount.FirstExternalAddress[aSymbol.ETH]
+			eBalance.Address = redeemAddress
 			eBalance.Balance = 0
 			eBalance.LastBlockHeight = 0
 			eBalance.Nonce = 1
 			eBalances := senderAccount.EBalances
 			eBalances[aSymbol.HBTC] = make(map[string]statedb.EBalance)
-			eBalances[aSymbol.HBTC][senderAccount.FirstExternalAddress[aSymbol.ETH]] = eBalance
+			eBalances[aSymbol.HBTC][redeemAddress] = eBalance
 			senderAccount.EBalances = eBalances
 		}
 	}
 
 	if strings.EqualFold(aSymbol.BNB, tx.Asset.Symbol) {
+		redeemAddress := ""
+		if tx.RecieverAddress != "" {
+			redeemAddress = senderAccount.FirstExternalAddress[aSymbol.BNB]
+		} else {
+			redeemAddress = tx.RecieverAddress
+		}
 		if _, ok := senderAccount.EBalances[aSymbol.HBNB]; !ok {
 			eBalance := statedb.EBalance{}
-			eBalance.Address = senderAccount.FirstExternalAddress[aSymbol.ETH]
+			eBalance.Address = redeemAddress
 			eBalance.Balance = 0
 			eBalance.LastBlockHeight = 0
 			eBalance.Nonce = 1
 			eBalances := senderAccount.EBalances
 			eBalances[aSymbol.HBNB] = make(map[string]statedb.EBalance)
-			eBalances[aSymbol.HBNB][senderAccount.FirstExternalAddress[aSymbol.ETH]] = eBalance
+			eBalances[aSymbol.HBNB][redeemAddress] = eBalance
 			senderAccount.EBalances = eBalances
 		}
 	}
 
 	if strings.EqualFold(aSymbol.LTC, tx.Asset.Symbol) {
+		redeemAddress := ""
+		if tx.RecieverAddress != "" {
+			redeemAddress = senderAccount.FirstExternalAddress[aSymbol.LTC]
+		} else {
+			redeemAddress = tx.RecieverAddress
+		}
 		if _, ok := senderAccount.EBalances[aSymbol.HLTC]; !ok {
 			eBalance := statedb.EBalance{}
-			eBalance.Address = senderAccount.FirstExternalAddress[aSymbol.ETH]
+			eBalance.Address = redeemAddress
 			eBalance.Balance = 0
 			eBalance.LastBlockHeight = 0
 			eBalance.Nonce = 1
 			eBalances := senderAccount.EBalances
 			eBalances[aSymbol.HLTC] = make(map[string]statedb.EBalance)
-			eBalances[aSymbol.HLTC][senderAccount.FirstExternalAddress[aSymbol.ETH]] = eBalance
+			eBalances[aSymbol.HLTC][redeemAddress] = eBalance
 			senderAccount.EBalances = eBalances
 		}
 	}
 
 	if strings.EqualFold(aSymbol.XTZ, tx.Asset.Symbol) {
+		redeemAddress := ""
+		if tx.RecieverAddress != "" {
+			redeemAddress = senderAccount.FirstExternalAddress[aSymbol.XTZ]
+		} else {
+			redeemAddress = tx.RecieverAddress
+		}
 		if _, ok := senderAccount.EBalances[aSymbol.HXTZ]; !ok {
 			eBalance := statedb.EBalance{}
-			eBalance.Address = senderAccount.FirstExternalAddress[aSymbol.ETH]
+			eBalance.Address = redeemAddress
 			eBalance.Balance = 0
 			eBalance.LastBlockHeight = 0
 			eBalance.Nonce = 1
 			eBalances := senderAccount.EBalances
 			eBalances[aSymbol.HXTZ] = make(map[string]statedb.EBalance)
-			eBalances[aSymbol.HXTZ][senderAccount.FirstExternalAddress[aSymbol.ETH]] = eBalance
+			eBalances[aSymbol.HXTZ][redeemAddress] = eBalance
 			senderAccount.EBalances = eBalances
 		}
 	}
