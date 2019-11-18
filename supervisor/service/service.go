@@ -1111,7 +1111,9 @@ func (s *Supervisor) updateStateForTxs(txs *txbyte.Txs, stateTrie statedb.Trie) 
 		}
 
 		// Check if tx is of type account update
-		if strings.EqualFold(tx.Type, "External") {
+		if strings.EqualFold(tx.Type, "External") ||
+			strings.EqualFold(tx.Type, "Lend") ||
+			strings.EqualFold(tx.Type, "Borrow") {
 			symbol := tx.Asset.Symbol
 			if symbol != aSymbol.BTC && symbol != aSymbol.ETH && symbol != aSymbol.HBTC && symbol != aSymbol.XTZ {
 				log.Printf("Unsupported external asset symbol: %v", symbol)
@@ -1132,14 +1134,17 @@ func (s *Supervisor) updateStateForTxs(txs *txbyte.Txs, stateTrie statedb.Trie) 
 				log.Printf("Sender does not have enough assets in account (%d) to send transaction amount (%d)", balance.Balance, tx.Asset.Value)
 				continue
 			}
-			if balance.Balance > tx.Asset.Value {
-				balance.Balance -= tx.Asset.Value
-			} else {
-				balance.Balance = 0
+
+			if strings.EqualFold(tx.Type, "External") {
+				if balance.Balance > tx.Asset.Value {
+					balance.Balance -= tx.Asset.Value
+				} else {
+					balance.Balance = 0
+				}
+				senderAccount.EBalances[symbol][tx.Asset.ExternalSenderAddress] = balance
 			}
 
 			senderAccount.Nonce = tx.Asset.Nonce
-			senderAccount.EBalances[symbol][tx.Asset.ExternalSenderAddress] = balance
 
 			sactbz, err := cdc.MarshalJSON(senderAccount)
 			if err != nil {
