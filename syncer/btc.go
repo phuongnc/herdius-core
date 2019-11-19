@@ -147,7 +147,7 @@ func (btc *BTCSyncer) GetExtBalance() error {
 func (btc *BTCSyncer) Update() {
 	for _, assetAccount := range btc.syncer.Account.EBalances[btc.syncer.assetSymbol] {
 		if btc.syncer.addressError[assetAccount.Address] {
-			log.Warn().Msg("BTC Account info is not available at this moment, skip sync: " + assetAccount.Address)
+			//log.Warn().Msg("BTC Account info is not available at this moment, skip sync: " + assetAccount.Address)
 			continue
 		}
 		btc.syncer.update(assetAccount.Address)

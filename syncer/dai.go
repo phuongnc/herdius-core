@@ -92,7 +92,7 @@ func (ds *DaiSyncer) GetExtBalance() error {
 func (ds *DaiSyncer) Update() {
 	for _, daiAccount := range ds.syncer.Account.EBalances[ds.syncer.assetSymbol] {
 		if ds.syncer.addressError[daiAccount.Address] {
-			log.Warn().Msgf("Dai account info is not available at this moment, skip sync: %s", daiAccount.Address)
+			//log.Warn().Msgf("Dai account info is not available at this moment, skip sync: %s", daiAccount.Address)
 			continue
 		}
 		ds.syncer.update(daiAccount.Address)

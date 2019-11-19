@@ -66,7 +66,7 @@ func (ts *TezosSyncer) GetExtBalance() error {
 func (ts *TezosSyncer) Update() {
 	for _, xtsAccount := range ts.syncer.Account.EBalances[ts.syncer.assetSymbol] {
 		if ts.syncer.addressError[xtsAccount.Address] {
-			log.Warn().Msgf("Tezos account info is not available at this moment, skip sync: %s", xtsAccount.Address)
+			//log.Warn().Msgf("Tezos account info is not available at this moment, skip sync: %s", xtsAccount.Address)
 			continue
 		}
 		ts.syncer.update(xtsAccount.Address)

@@ -74,7 +74,7 @@ func (bs *BNBSyncer) GetExtBalance() error {
 func (bs *BNBSyncer) Update() {
 	for _, bnbAccount := range bs.syncer.Account.EBalances[bs.syncer.assetSymbol] {
 		if bs.syncer.addressError[bnbAccount.Address] {
-			log.Warn().Msgf("BNB account info is not available at this moment, skip sync: %s", bnbAccount.Address)
+			//log.Warn().Msgf("BNB account info is not available at this moment, skip sync: %s", bnbAccount.Address)
 			continue
 		}
 		bs.syncer.update(bnbAccount.Address)

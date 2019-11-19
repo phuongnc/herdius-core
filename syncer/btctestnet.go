@@ -80,7 +80,7 @@ func (btc *BTCTestNetSyncer) Update() {
 	assetSymbol := symbol.BTC
 	for _, btcAccount := range btc.Account.EBalances[assetSymbol] {
 		if btc.addressError[btcAccount.Address] {
-			log.Warn().Msgf("Account info is not available at this moment, skip sync: %s", btcAccount.Address)
+			//log.Warn().Msgf("Account info is not available at this moment, skip sync: %s", btcAccount.Address)
 			continue
 		}
 		herEthBalance := *big.NewInt(int64(0))
