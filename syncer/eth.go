@@ -87,7 +87,7 @@ func (es *EthSyncer) GetExtBalance() error {
 func (es *EthSyncer) Update() {
 	for _, assetAccount := range es.syncer.Account.EBalances[es.syncer.assetSymbol] {
 		if es.syncer.addressError[assetAccount.Address] {
-			log.Warn().Msg("ETH Account info is not available at this moment, skip sync: " + assetAccount.Address)
+			//log.Warn().Msg("ETH Account info is not available at this moment, skip sync: " + assetAccount.Address)
 			continue
 		}
 		es.syncer.update(assetAccount.Address)

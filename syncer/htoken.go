@@ -48,14 +48,14 @@ func (hs *HTokenSyncer) GetExtBalance() error {
 	// If ETH account exists
 	parentSymbolAccount, ok := hs.syncer.Account.EBalances[hs.parentSymbol]
 	if !ok {
-		log.Warn().Msgf("%s depends on %[2]s, but no %[2]s account available", hs.symbol, hs.parentSymbol)
+		//log.Warn().Msgf("%s depends on %[2]s, but no %[2]s account available", hs.symbol, hs.parentSymbol)
 		return fmt.Errorf("%s account does not exists", hs.parentSymbol)
 	}
 
 	hTokenAccount, ok := parentSymbolAccount[hs.syncer.Account.FirstExternalAddress[hs.parentSymbol]]
 	if !ok {
 		msg := fmt.Sprintf("%s does not exist", hs.symbol)
-		log.Warn().Msg(msg)
+		//log.Warn().Msg(msg)
 		return errors.New(msg)
 	}
 

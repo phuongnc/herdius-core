@@ -78,7 +78,7 @@ func (ls *LTCSyncer) GetExtBalance() error {
 func (ls *LTCSyncer) Update() {
 	for _, ltcAccount := range ls.syncer.Account.EBalances[ls.syncer.assetSymbol] {
 		if ls.syncer.addressError[ltcAccount.Address] {
-			log.Warn().Msgf("LTC account info is not available at this moment, skip sync: %s", ltcAccount.Address)
+			//log.Warn().Msgf("LTC account info is not available at this moment, skip sync: %s", ltcAccount.Address)
 			continue
 		}
 		ls.syncer.update(ltcAccount.Address)
