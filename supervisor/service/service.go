@@ -1144,10 +1144,7 @@ func (s *Supervisor) updateStateForTxs(txs *txbyte.Txs, stateTrie statedb.Trie) 
 				}
 				senderAccount.EBalances[symbol][tx.Asset.ExternalSenderAddress] = balance
 			}
-			if strings.EqualFold(tx.Type, "Lend") && strings.EqualFold(tx.Data, "Redeem") {
-				balance.Balance += tx.Asset.Value
-				senderAccount.EBalances[symbol][tx.Asset.ExternalSenderAddress] = balance
-			}
+
 			senderAccount.Nonce = tx.Asset.Nonce
 
 			sactbz, err := cdc.MarshalJSON(senderAccount)
