@@ -1135,7 +1135,8 @@ func (s *Supervisor) updateStateForTxs(txs *txbyte.Txs, stateTrie statedb.Trie) 
 				continue
 			}
 
-			if strings.EqualFold(tx.Type, "External") {
+			if strings.EqualFold(tx.Type, "External") ||
+				(strings.EqualFold(tx.Type, "Lend") && strings.EqualFold(tx.Data, "Mint")) {
 				if balance.Balance > tx.Asset.Value {
 					balance.Balance -= tx.Asset.Value
 				} else {
