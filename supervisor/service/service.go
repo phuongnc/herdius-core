@@ -1111,7 +1111,42 @@ func (s *Supervisor) updateStateForTxs(txs *txbyte.Txs, stateTrie statedb.Trie) 
 		}
 
 		// Check if tx is of type account update
-		if strings.EqualFold(tx.Type, "External") ||
+		if strings.EqualFold(tx.Asset.Network, "Fabric") ||
+			strings.EqualFold(tx.Asset.Network, "Corda") {
+			senderAccount.Nonce = tx.Asset.Nonce
+
+			sactbz, err := cdc.MarshalJSON(senderAccount)
+			if err != nil {
+				log.Printf("Failed to Marshal sender's account: %v", err)
+				plog.Error().Msgf("Failed to Marshal sender's account: %v", err)
+				continue
+			}
+			addressBytes := []byte(pubKey.GetAddress())
+			err = stateTrie.TryUpdate(addressBytes, sactbz)
+			if err != nil {
+				log.Printf("Failed to store account in state db: %v", err)
+				plog.Error().Msgf("Failed to store account in state db: %v", err)
+				tx.Status = "failed"
+				txbz, err = cdc.MarshalJSON(&tx)
+				(*txs)[i] = txbz
+				if err != nil {
+					log.Printf("Failed to encode failed tx: %v", err)
+					plog.Error().Msgf("Failed to encode failed tx: %v", err)
+					continue
+				}
+			}
+			tx.Status = "success"
+			txbz, err = cdc.MarshalJSON(&tx)
+			txStr.Status = tx.Status
+			txlist.Transactions = append(txlist.Transactions, &txStr)
+			(*txs)[i] = txbz
+			if err != nil {
+				log.Printf("Failed to encode failed tx: %v", err)
+				plog.Error().Msgf("Failed to encode failed tx: %v", err)
+			}
+
+			continue
+		} else if strings.EqualFold(tx.Type, "External") ||
 			strings.EqualFold(tx.Type, "Lend") ||
 			strings.EqualFold(tx.Type, "Borrow") {
 			symbol := tx.Asset.Symbol
