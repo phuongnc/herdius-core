@@ -1132,6 +1132,7 @@ func (s *Supervisor) updateStateForTxs(txs *txbyte.Txs, stateTrie statedb.Trie) 
 				if err != nil {
 					log.Printf("Failed to encode failed tx: %v", err)
 					plog.Error().Msgf("Failed to encode failed tx: %v", err)
+					continue
 				}
 			}
 			tx.Status = "success"
