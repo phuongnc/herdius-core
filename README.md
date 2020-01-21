@@ -107,7 +107,7 @@ sudo yum install -y git gcc jq
 
 ```
 mkdir -p $GOPATH/src/github.com/herdius/
-git clone https://github.com/herdius/herdius-core.git $GOPATH/src/github.com/herdius/
+git clone https://github.com/herdius/herdius-core.git $GOPATH/src/github.com/herdius/herdius-core
 cd $GOPATH/src/github.com/herdius/herdius-core/
 ```
 
