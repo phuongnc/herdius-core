@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	b64 "encoding/base64"
-	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -1035,50 +1034,13 @@ func (s *Supervisor) updateStateForTxs(txs *txbyte.Txs, stateTrie statedb.Trie) 
 		var pubKey secp256k1.PubKeySecp256k1
 		copy(pubKey[:], pubKeyS)
 
-		// Verify the signature
-		// if verification failed update the tx status as failed tx.
-		//Recreate the TX
-		asset := &pluginproto.Asset{
-			Category:              tx.Asset.Category,
-			Symbol:                tx.Asset.Symbol,
-			Network:               tx.Asset.Network,
-			Value:                 tx.Asset.Value,
-			Fee:                   tx.Asset.Fee,
-			Nonce:                 tx.Asset.Nonce,
-			ExternalSenderAddress: tx.Asset.ExternalSenderAddress,
-			LockedAmount:          tx.Asset.LockedAmount,
-			RedeemedAmount:        tx.Asset.RedeemedAmount,
-		}
-		verifiableTx := pluginproto.Tx{
-			SenderAddress:   tx.SenderAddress,
-			SenderPubkey:    tx.SenderPubkey,
-			RecieverAddress: tx.RecieverAddress,
-			Asset:           asset,
-			Message:         tx.Message,
-			Type:            tx.Type,
-			Data:            tx.Data,
-			ExternalAddress: tx.ExternalAddress,
-		}
-
-		txbBeforeSign, err := json.Marshal(verifiableTx)
+		signatureVerified, err := txbyte.VerifySignature(&tx, pubKey)
 		if err != nil {
-			plog.Error().Msgf("Failed to marshal the transaction to verify sign: %v", err)
-			log.Printf("Failed to marshal the transaction to verify sign: %v", err)
+			plog.Error().Msgf("failed to verify tx signature: %v", err)
 			continue
 		}
-
-		decodedSig, err := b64.StdEncoding.DecodeString(tx.Sign)
-
-		if err != nil {
-			plog.Error().Msgf("Failed to decode the base64 sign to verify sign: %v", err)
-			log.Printf("Failed to decode the base64 sign to verify sign: %v", err)
-			continue
-		}
-
-		signVerificationRes := pubKey.VerifyBytes(txbBeforeSign, decodedSig)
-		if !signVerificationRes {
-			plog.Error().Msgf("Signature Verification Failed: %v", signVerificationRes)
-			log.Printf("Signature Verification Failed: %v", signVerificationRes)
+		if !signatureVerified {
+			plog.Error().Msg("Signature Verification Failed")
 			tx.Status = "failed"
 			txbz, err = cdc.MarshalJSON(&tx)
 			(*txs)[i] = txbz
