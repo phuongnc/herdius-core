@@ -4,9 +4,11 @@ import (
 	"errors"
 	"math/big"
 
-	goTezos "github.com/DefinitelyNotAGoat/go-tezos"
 	"github.com/herdius/herdius-core/p2p/log"
 	"github.com/herdius/herdius-core/symbol"
+
+	goTezos "github.com/DefinitelyNotAGoat/go-tezos"
+	goTezosAccount "github.com/DefinitelyNotAGoat/go-tezos/account"
 )
 
 // TezosSyncer syncs all XTZ external accounts
@@ -32,7 +34,7 @@ func (ts *TezosSyncer) GetExtBalance() error {
 
 	for _, ta := range xtsAccount {
 		// TODO: remove empty argument when go-tezos fixes it.
-		gt, err := goTezos.NewGoTezos(ts.RPC, "")
+		gt, err := goTezos.NewGoTezos(ts.RPC)
 		if err != nil {
 			log.Error().Msgf("Error connecting XTZ RPC: %v", err)
 			ts.syncer.addressError[ta.Address] = true
@@ -53,7 +55,7 @@ func (ts *TezosSyncer) GetExtBalance() error {
 			ts.syncer.addressError[ta.Address] = true
 			continue
 		}
-		ts.syncer.ExtBalance[ta.Address] = big.NewInt(int64(balance) * goTezos.MUTEZ)
+		ts.syncer.ExtBalance[ta.Address] = big.NewInt(int64(balance) * goTezosAccount.MUTEZ)
 		ts.syncer.BlockHeight[ta.Address] = latestBlockNumber
 		ts.syncer.addressError[ta.Address] = false
 	}

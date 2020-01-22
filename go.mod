@@ -1,7 +1,7 @@
 module github.com/herdius/herdius-core
 
 require (
-	github.com/DefinitelyNotAGoat/go-tezos v1.0.9
+	github.com/DefinitelyNotAGoat/go-tezos v1.0.0
 	github.com/allegro/bigcache v1.1.0 // indirect
 	github.com/aristanetworks/goarista v0.0.0-20190514202536-8f808a500156 // indirect
 	github.com/aws/aws-sdk-go v1.19.35
@@ -51,3 +51,5 @@ require (
 )
 
 go 1.12
+
+replace github.com/DefinitelyNotAGoat/go-tezos v1.0.0 => github.com/DefinitelyNotAGoat/go-tezos v1.0.1-0.20190803201456-e555a814cc1b
