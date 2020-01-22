@@ -6,6 +6,5 @@ jobs:
     working_directory: /go/src/github.com/herdius/herdius-core
     steps:
       - checkout
-
       - run: go get -v -t -d ./...
       - run: go test -v ./...
